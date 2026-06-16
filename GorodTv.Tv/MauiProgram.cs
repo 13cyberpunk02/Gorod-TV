@@ -41,10 +41,16 @@ namespace GorodTv.Tv
                         
             builder.Services.AddTransient<LoginTvPage>();
             builder.Services.AddTransient<CategoriesTvPage>();
+            builder.Services.AddTransient<ChannelListTvPage>();
+            builder.Services.AddTransient<FavoritesTvPage>();
+            builder.Services.AddTransient<PlayerTvPage>();
 
 
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<CategoriesViewModel>();
+            builder.Services.AddTransient<ChannelListViewModel>();
+            builder.Services.AddTransient<FavoritesViewModel>();
+            builder.Services.AddTransient<PlayerViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

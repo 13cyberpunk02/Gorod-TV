@@ -11,7 +11,19 @@
         Route="login" />
 
     <ShellContent
-    ContentTemplate="{DataTemplate pages:CategoriesTvPage}"
+        ContentTemplate="{DataTemplate pages:CategoriesTvPage}"
         Route="categories" />
+
+    <ShellContent
+        ContentTemplate="{DataTemplate pages:FavoritesTvPage}"
+        Route="favorites" />
+
+    <ShellContent
+        ContentTemplate="{DataTemplate pages:ChannelListTvPage}"
+        Route="channellist" />
+
+    <ShellContent
+        ContentTemplate="{DataTemplate pages:PlayerTvPage}"
+        Route="player" />
 
 </Shell>

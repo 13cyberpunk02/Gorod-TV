@@ -123,7 +123,7 @@ public partial class LoginTvPage : ContentPage
 
         var back = new Button
         {
-            Text = "\ue14a",                 // backspace (стереть символ)
+            Text = "\ue14a",
             FontFamily = "MaterialSymbols",
             Style = GetStyle("TvKey")
         };
@@ -133,13 +133,14 @@ public partial class LoginTvPage : ContentPage
         var layout = new Button { Text = _lettersLayout ? "123" : "ABC", Style = GetStyle("TvKey") };
         layout.Clicked += OnToggleLayout;
         grid.Add(layout, 1, 0);
+        Grid.SetColumnSpan(layout, 2);
 
         var next = new Button { Style = GetStyle("TvKey") };
         ApplyNextFieldContent(next);
         next.Clicked += OnNextField;
-        Grid.SetColumnSpan(next, 4);
+        grid.Add(next, 3, 0);
+        Grid.SetColumnSpan(next, 3);
         next.HorizontalOptions = LayoutOptions.Fill;
-        grid.Add(next, 2, 0);
         _nextFieldButton = next;
 
         return grid;

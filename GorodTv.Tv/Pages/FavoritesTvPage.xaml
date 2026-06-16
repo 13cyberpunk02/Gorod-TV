@@ -2,26 +2,21 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
-             xmlns:models="clr-namespace:GorodTV.Core.Models;assembly=GorodTV.Core"
-             x:Class="GorodTv.Tv.Pages.CategoriesTvPage"
-             x:DataType="vm:CategoriesViewModel"
+             x:Class="GorodTv.Tv.Pages.FavoritesTvPage"
+             x:DataType="vm:FavoritesViewModel"
              x:Name="Page"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#0B0E13">
 
     <Grid ColumnDefinitions="96,*">
 
-        <!-- ЛЕВЫЙ САЙДБАР: лого сверху + скруглённый блок с кнопками -->
+        <!-- САЙДБАР -->
         <Grid Grid.Column="0" RowDefinitions="Auto,*" Padding="16,20,8,20" RowSpacing="16">
-
-            <!-- лого сверху отдельно -->
             <Border Grid.Row="0" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
                     StrokeShape="RoundRectangle 12" WidthRequest="48" HeightRequest="48"
                     HorizontalOptions="Center">
                 <Image Source="logo_infolan.svg" Aspect="AspectFit" Margin="9" />
             </Border>
-
-            <!-- блок-карточка с 3 кнопками по центру -->
             <Border Grid.Row="1" BackgroundColor="#0E1320" StrokeThickness="0"
                     StrokeShape="RoundRectangle 20" VerticalOptions="Center" Padding="8,16">
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
@@ -36,18 +31,30 @@
         </Grid>
 
         <!-- КОНТЕНТ -->
-        <Grid Grid.Column="1" RowDefinitions="Auto,*" Padding="40,28,40,28" RowSpacing="20">
+        <Grid Grid.Column="1" RowDefinitions="Auto,*" Padding="40,28,40,28" RowSpacing="18">
             <VerticalStackLayout Grid.Row="0" Spacing="4">
-                <Label Text="ДОБРЫЙ ВЕЧЕР" FontFamily="OnestBold" FontSize="13" TextColor="#5B6B82" />
-                <Label Text="Выберите категорию" FontFamily="OnestBold" FontSize="30" TextColor="White" />
+                <Label Text="ИЗБРАННОЕ" FontFamily="OnestBold" FontSize="13" TextColor="#5B6B82" />
+                <Label Text="Любимые каналы" FontFamily="OnestBold" FontSize="30" TextColor="White" />
             </VerticalStackLayout>
 
-            <!-- карточки строятся из code-behind в этот контейнер -->
+            <!-- пустое состояние -->
+            <VerticalStackLayout Grid.Row="1" x:Name="EmptyState" IsVisible="False"
+                                 Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
+                <Label Text="&#xe87e;" FontFamily="MaterialSymbols" FontSize="56"
+                       TextColor="#2A3342" HorizontalOptions="Center" />
+                <Label Text="Здесь пока пусто" FontFamily="OnestBold" FontSize="20"
+                       TextColor="#8A94A6" HorizontalOptions="Center" />
+                <Label Text="Добавляйте каналы в избранное из списка каналов"
+                       FontFamily="Onest" FontSize="14" TextColor="#5B6B82"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- карточки избранного -->
             <ScrollView Grid.Row="1">
-                <FlexLayout x:Name="CategoriesHost" Wrap="Wrap"
+                <FlexLayout x:Name="ChannelsHost" Wrap="Wrap"
                             JustifyContent="Start" AlignContent="Start" />
             </ScrollView>
         </Grid>
     </Grid>
-
+    
 </ContentPage>

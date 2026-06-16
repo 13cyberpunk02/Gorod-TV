@@ -66,9 +66,9 @@ public class DialogService : IDialogService
                 return; // не мешаем, если корень не Grid
             }
 
-            await toast.FadeTo(1, 180);
+            await toast.FadeToAsync(1, 180);
             await Task.Delay(2200);
-            await toast.FadeTo(0, 250);
+            await toast.FadeToAsync(0, 250);
             grid?.Children.Remove(toast);
         }
     }
