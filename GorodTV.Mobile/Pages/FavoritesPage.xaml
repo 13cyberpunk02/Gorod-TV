@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GorodTV.Pages.FavoritesPage"
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             xmlns:m="clr-namespace:GorodTV.Core.Models;assembly=GorodTV.Core"
+             x:DataType="vm:FavoritesViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*" Padding="20,16,20,0" RowSpacing="16">
+
+        <Label Grid.Row="0" Text="Избранное" FontFamily="OnestBold" FontSize="28"
+               TextColor="{StaticResource TextPrimary}" />
+
+        <!-- список избранного -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Channels}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="m:ChannelItem">
+                    <Grid Padding="0,8">
+                        <Border BackgroundColor="{StaticResource Surface}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 16" Padding="12">
+                            <Border.Shadow>
+                                <Shadow Brush="#15191E" Opacity="0.05" Radius="10" Offset="0,3" />
+                            </Border.Shadow>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <!-- логотип -->
+                                <Border BackgroundColor="{Binding TileColor}" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 14" WidthRequest="52" HeightRequest="52"
+                                        VerticalOptions="Center">
+                                    <Grid>
+                                        <Label Text="{Binding Abbrev}" FontFamily="OnestBold" FontSize="17"
+                                               TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
+                                               IsVisible="{Binding HasIcon, Converter={StaticResource InvertBool}}" />
+                                        <Image Source="{Binding IconUrl}" Aspect="AspectFit" Margin="6"
+                                               IsVisible="{Binding HasIcon}" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- имя + текущая передача -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontFamily="OnestBold" FontSize="16"
+                                           TextColor="{StaticResource TextPrimary}" LineBreakMode="WordWrap" />
+                                    <Label Text="{Binding CurrentProgram}" FontFamily="Onest" FontSize="13"
+                                           TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation"
+                                           IsVisible="{Binding HasEpg}" />
+                                </VerticalStackLayout>
+
+                                <!-- сердце -->
+                                <Border Grid.Column="2" BackgroundColor="#FCE7E6" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 20" WidthRequest="40" HeightRequest="40"
+                                        VerticalOptions="Center">
+                                    <Label FontFamily="MaterialSymbols" FontSize="20" Text="&#xe87e;"
+                                           TextColor="{Binding FavoriteColor}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.ToggleFavoriteCommand, Source={x:Reference Page}}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenChannelCommand, Source={x:Reference Page}}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <!-- заглушка «пусто» -->
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="0,80" Spacing="12" HorizontalOptions="Center">
+                    <Border BackgroundColor="#FCE7E6" StrokeThickness="0" StrokeShape="RoundRectangle 32"
+                            WidthRequest="64" HeightRequest="64" HorizontalOptions="Center">
+                        <Label FontFamily="MaterialSymbols" FontSize="32" Text="&#xe87e;"
+                               TextColor="{StaticResource Live}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Нет избранных каналов" FontFamily="OnestBold" FontSize="16"
+                           TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                    <Label Text="Добавляйте каналы кнопкой с сердцем" FontFamily="Onest" FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+    </Grid>
+    
+</ContentPage>

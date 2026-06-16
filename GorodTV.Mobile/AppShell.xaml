@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="GorodTV.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:GorodTV.Pages"
+    Title="Gorod TV">
+
+    <ShellContent Route="splash"
+                  ContentTemplate="{DataTemplate pages:SplashPage}"
+                  Shell.NavBarIsVisible="False"
+                  FlyoutItemIsVisible="False" />
+
+    <ShellContent Route="login"
+                  ContentTemplate="{DataTemplate pages:LoginPage}"
+                  Shell.NavBarIsVisible="False"
+                  FlyoutItemIsVisible="False" />
+
+    <TabBar Route="main">
+        <ShellContent Route="categories" Title="Категория"
+               ContentTemplate="{DataTemplate pages:CategoriesPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MaterialSymbols"
+                          Glyph="&#xe5c3;" Size="24"
+                          Color="{StaticResource Primary}" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent Route="favorites" Title="Избранное"
+              ContentTemplate="{DataTemplate pages:FavoritesPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MaterialSymbols"
+                         Glyph="&#xe87e;" Size="24"
+                         Color="{StaticResource Primary}" />
+            </ShellContent.Icon>
+        </ShellContent>
+    </TabBar>
+
+</Shell>

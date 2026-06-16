@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="GorodTV.Controls.BrandAlertPopup"
+             x:TypeArguments="x:Boolean"
+             BackgroundColor="Transparent"
+             CanBeDismissedByTappingOutsideOfPopup="True"
+             Padding="0"
+             Margin="0">
+
+    <Border BackgroundColor="{StaticResource Surface}"
+         StrokeThickness="0"
+         StrokeShape="RoundRectangle 24"
+         WidthRequest="320"
+         HorizontalOptions="Center"
+         VerticalOptions="Center"
+         Padding="24,28,24,20">
+        <Border.Shadow>
+            <Shadow Brush="#15191E" Opacity="0.25" Radius="40" Offset="0,12" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="14">
+
+            <Border x:Name="IconCircle"
+                 BackgroundColor="#E4EDFC"
+                 StrokeThickness="0"
+                 StrokeShape="RoundRectangle 28"
+                 WidthRequest="56" HeightRequest="56"
+                 HorizontalOptions="Center">
+                <Label x:Name="IconLabel"
+                    FontFamily="MaterialSymbols" FontSize="28"
+                    TextColor="{StaticResource Primary}"
+                    HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+            <Label x:Name="TitleLabel"
+                FontFamily="OnestBold" FontSize="19"
+                TextColor="{StaticResource TextPrimary}"
+                HorizontalTextAlignment="Center" />
+
+            <Label x:Name="MessageLabel"
+                FontFamily="Onest" FontSize="15"
+                TextColor="{StaticResource TextSecondary}"
+                HorizontalTextAlignment="Center" />
+
+            <!-- основная кнопка (подтверждение / ОК) -->
+            <Button x:Name="OkButton"
+                 Style="{StaticResource PrimaryButton}"
+                 HeightRequest="50"
+                 Margin="0,8,0,0"
+                 Text="Понятно"
+                 Clicked="OnOkClicked" />
+
+            <!-- кнопка отмены: видна только в режиме подтверждения (ConfirmAsync) -->
+            <Button x:Name="CancelButton"
+                 HeightRequest="50"
+                 Margin="0,-4,0,0"
+                 Text="Отмена"
+                 BackgroundColor="Transparent"
+                 TextColor="{StaticResource TextSecondary}"
+                 FontFamily="OnestMedium"
+                 IsVisible="False"
+                 Clicked="OnCancelClicked" />
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

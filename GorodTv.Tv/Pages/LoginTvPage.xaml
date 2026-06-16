@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             x:Class="GorodTv.Tv.Pages.LoginTvPage"
+             x:DataType="vm:LoginViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0B0E13">
+
+    <Grid ColumnDefinitions="*,*" Padding="36,28" ColumnSpacing="24">
+
+        <!-- ЛЕВО: герой-панель -->
+        <Border Grid.Column="0" BackgroundColor="#11161F" StrokeThickness="0"
+                StrokeShape="RoundRectangle 18" Padding="28">
+            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
+
+                <HorizontalStackLayout Grid.Row="0" Spacing="12">
+                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10" WidthRequest="40" HeightRequest="40">
+                        <Image Source="logo_infolan.svg" Aspect="AspectFit" Margin="7" />
+                    </Border>
+                    <Label Text="Инфо-Лан ТВ" FontFamily="OnestBold" FontSize="20"
+                           TextColor="White" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <VerticalStackLayout Grid.Row="1" Spacing="12" VerticalOptions="Center">
+                    <Border BackgroundColor="#1E2A3D" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 12" Padding="12,6" HorizontalOptions="Start">
+                        <HorizontalStackLayout Spacing="6">
+                            <Ellipse Fill="#2ED573" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
+                            <Label Text="180 КАНАЛОВ В ЭФИРЕ" FontFamily="OnestMedium" FontSize="11"
+                                   TextColor="#B9C4D4" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Label Text="Приятного просмотра" FontFamily="OnestBold" FontSize="32"
+                           TextColor="White" LineHeight="1.05" />
+
+                    <Label FontFamily="Onest" FontSize="13" TextColor="#8A94A6" LineHeight="1.35"
+                           Text="Спорт, кино, новости и любимые региональные каналы — в отличном качестве. Устраивайтесь поудобнее." />
+                </VerticalStackLayout>
+
+                <HorizontalStackLayout Grid.Row="2" Spacing="8">
+                    <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                        <Label Text="HD и 4K" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
+                    </Border>
+                    <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                        <Label Text="Архив 7 дней" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
+                    </Border>
+                    <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                        <Label Text="На всех экранах" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
+                    </Border>
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- ПРАВО: вход -->
+        <Border Grid.Column="1" BackgroundColor="#11161F" StrokeThickness="0"
+                StrokeShape="RoundRectangle 18" Padding="24,20">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+
+                <Label Grid.Row="0" Text="ВХОД В КАБИНЕТ · ШАГ 1 ИЗ 2"
+                       FontFamily="OnestBold" FontSize="12" TextColor="#5B6B82" />
+
+                <VerticalStackLayout Grid.Row="1" Spacing="5">
+                    <Label Text="Номер договора" FontFamily="OnestMedium" FontSize="12" TextColor="#8A94A6" />
+                    <Border x:Name="ContractField" BackgroundColor="#0D121A" Stroke="{StaticResource Primary}"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 10" Padding="14,10">
+                        <Label x:Name="ContractLabel" Text="—" FontFamily="OnestBold"
+                               FontSize="16" TextColor="White" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Row="2" Spacing="5">
+                    <Label Text="Пароль" FontFamily="OnestMedium" FontSize="12" TextColor="#8A94A6" />
+                    <Border x:Name="PasswordField" BackgroundColor="#0D121A" Stroke="#23303F"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 10" Padding="14,10">
+                        <Label x:Name="PasswordLabel" Text="Перейдите вниз, чтобы ввести"
+                               FontFamily="Onest" FontSize="13" TextColor="#5B6B82" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- клавиатура: компактная, влезает целиком -->
+                <!-- контейнер клавиатуры: заполняется из code-behind (цифры/латиница) -->
+                <VerticalStackLayout Grid.Row="3" x:Name="KeyboardHost" Spacing="2" Margin="0,4,0,0" />
+
+                <!-- отдельная широкая кнопка Войти -->
+                <Button Grid.Row="4" Text="Войти" Style="{StaticResource TvPrimaryKey}"
+                        Clicked="OnLogin" Margin="0,4,0,0" />
+
+                <ActivityIndicator Grid.Row="5" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}" HorizontalOptions="Center" Margin="0,4,0,0" />
+            </Grid>
+        </Border>
+    </Grid>
+
+</ContentPage>

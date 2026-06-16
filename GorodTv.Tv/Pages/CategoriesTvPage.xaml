@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             xmlns:models="clr-namespace:GorodTV.Core.Models;assembly=GorodTV.Core"
+             x:Class="GorodTv.Tv.Pages.CategoriesTvPage"
+             x:DataType="vm:CategoriesViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <!-- 10-фут интерфейс: крупные отступы, читается с дивана -->
+    <Grid RowDefinitions="Auto,*" Padding="60,40,60,40" RowSpacing="32">
+
+        <Label Grid.Row="0" Text="Каналы" FontFamily="OnestBold" FontSize="44"
+               TextColor="{StaticResource TextPrimary}" />
+
+        <ScrollView Grid.Row="1">
+            <!-- сетка категорий: 4 в ряд, крупные карточки-кнопки -->
+            <FlexLayout BindableLayout.ItemsSource="{Binding Categories}"
+                        Wrap="Wrap" JustifyContent="Start" AlignItems="Start">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:CategoryItem">
+                        <!-- фокусируемая карточка на основе Button -->
+                        <Button Style="{StaticResource TvCardButton}"
+                                WidthRequest="380" HeightRequest="160" Margin="12"
+                                Clicked="OnCategoryClicked"
+                                CommandParameter="{Binding .}">
+                            <!-- содержимое карточки через ContentLayout не сделать богатым,
+                                 поэтому накладываем Grid поверх кнопки в code-behind-friendly виде:
+                                 используем ImageSource+Text. Для сложного контента см. примечание. -->
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="MaterialSymbols"
+                                                 Glyph="{Binding FallbackGlyph}"
+                                                 Color="{StaticResource Primary}" Size="40" />
+                            </Button.ImageSource>
+                        </Button>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

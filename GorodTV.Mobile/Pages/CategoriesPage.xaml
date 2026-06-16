@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"             
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             xmlns:m="clr-namespace:GorodTV.Core.Models;assembly=GorodTV.Core"
+             x:Class="GorodTV.Pages.CategoriesPage"
+             x:DataType="vm:CategoriesViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*" Padding="20,16,20,0" RowSpacing="16">
+
+        <!-- ===== Шапка ===== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Label Text="Каналы" FontFamily="OnestBold" FontSize="28"
+                   TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+
+            <Border Grid.Column="1" StrokeThickness="0" BackgroundColor="#EDF1F7"
+                    StrokeShape="RoundRectangle 22" WidthRequest="44" HeightRequest="44">
+                <Label Style="{StaticResource Icon}" Text="&#xf20b;"
+                       TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenProfileCommand}" />
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+
+        <!-- ===== Сетка категорий ===== -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="14" Padding="0,4,0,20">
+                <Label Text="КАТЕГОРИИ" FontFamily="OnestMedium" FontSize="12"
+                           CharacterSpacing="1.5" TextColor="{StaticResource TextSecondary}" />
+
+                <CollectionView ItemsSource="{Binding Categories}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="2"
+                                             HorizontalItemSpacing="14" VerticalItemSpacing="14" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="m:CategoryItem">
+                            <Border BackgroundColor="{StaticResource Surface}" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 20" Padding="16,18">
+                                <Border.Shadow>
+                                    <Shadow Brush="#15191E" Opacity="0.06" Radius="14" Offset="0,4" />
+                                </Border.Shadow>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenCategoryCommand, Source={x:Reference Page}}"
+                                                              CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+
+                                <VerticalStackLayout Spacing="12">
+                                    <Border BackgroundColor="{Binding Tint}" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 14" WidthRequest="48" HeightRequest="48"
+                                                HorizontalOptions="Start">
+                                        <Grid>
+                                            <!-- фоллбэк-иконка: видна, пока грузится картинка или если её нет -->
+                                            <Label FontFamily="MaterialSymbols" FontSize="24"
+                                                       Text="{Binding FallbackGlyph}"
+                                                       TextColor="{Binding IconColor}"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       IsVisible="{Binding HasIcon, Converter={StaticResource InvertBool}}" />
+                                            <Image Source="{Binding IconUrl}" Aspect="AspectFit"
+                                                       WidthRequest="28" HeightRequest="28"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       IsVisible="{Binding HasIcon}" />
+                                        </Grid>
+                                    </Border>
+
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Title}" FontFamily="OnestBold" FontSize="16"
+                                                   TextColor="{StaticResource TextPrimary}" />
+                                        <Label Text="{Binding CountText}" FontFamily="Onest" FontSize="13"
+                                                   TextColor="{StaticResource TextSecondary}" />
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

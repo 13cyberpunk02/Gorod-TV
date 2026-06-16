@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GorodTV.Pages.SplashPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Primary}">
+    <Grid>
+        <!-- Паттерн из иконок на весь экран -->
+        <Image Source="groups.svg"
+           Aspect="AspectFill"
+           Opacity="0.55" />
+
+        <!-- Фоновые эллипсы (тоже слегка плывут) -->
+        <Ellipse x:Name="SplashBlob1"
+                 Fill="#22FFFFFF" WidthRequest="260" HeightRequest="260"
+                 HorizontalOptions="End" VerticalOptions="Start"
+                 TranslationX="100" TranslationY="-110" />
+        <Ellipse x:Name="SplashBlob2"
+                 Fill="#1A0E2E66" WidthRequest="200" HeightRequest="200"
+                 HorizontalOptions="Start" VerticalOptions="End"
+                 TranslationX="-80" TranslationY="80" />
+
+        <!-- Логотип: появится, сделает 360° и подпрыгнет -->
+        <Image x:Name="Logo"
+               Source="logo_infolan.png"
+               WidthRequest="240" HeightRequest="39"
+               HorizontalOptions="Center" VerticalOptions="Center"
+               Opacity="0" Scale="0.6" />
+    </Grid>
+</ContentPage>

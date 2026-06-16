@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             xmlns:models="clr-namespace:GorodTV.Core.Models;assembly=GorodTV.Core"
+             x:Class="GorodTV.Pages.PlayerPage"
+             x:DataType="vm:PlayerViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#0E1216">
+
+        <!-- ===== Видео ===== -->
+        <!-- ===== Видео + контролы ===== -->
+        <!-- видео: обычная высота 230, в fullscreen управляется из code-behind -->
+        <Grid x:Name="VideoArea" Grid.Row="0" BackgroundColor="#0E1216" HeightRequest="230">
+
+            <toolkit:MediaElement x:Name="Media"
+                                  Source="{Binding StreamUrl}"
+                                  ShouldAutoPlay="True"
+                                  ShouldShowPlaybackControls="False"
+                                  Aspect="AspectFit"
+                                  HorizontalOptions="Fill" VerticalOptions="Fill" />
+
+            <!-- тап по видео — показать/скрыть контролы -->
+            <Grid x:Name="TapCatcher" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnVideoTapped" />
+                </Grid.GestureRecognizers>
+            </Grid>
+
+            <!-- слой контролов (автоскрытие) -->
+            <Grid x:Name="ControlsLayer" BackgroundColor="#33000000"
+                  IsVisible="{Binding ControlsVisible}">
+
+                <!-- верх: назад + название + cast -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8"
+                      Padding="14,14,14,0" VerticalOptions="Start">
+                    <Label Style="{StaticResource Icon}" Text="&#xe5c4;" TextColor="White">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BackCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Grid.Column="1" Text="{Binding ChannelName}" FontFamily="OnestBold"
+                           FontSize="16" TextColor="White" VerticalOptions="Center" Margin="6,0,0,0"
+                           LineBreakMode="TailTruncation" />
+                    <Label Grid.Column="2" Style="{StaticResource Icon}" Text="&#xe307;" TextColor="White" />
+                </Grid>
+
+                <!-- центр: -15 / play-pause / +15 -->
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="28">
+                    <Label FontFamily="MaterialSymbols" FontSize="34" Text="&#xe020;"
+                           TextColor="White" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeekBackwardCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 32" WidthRequest="64" HeightRequest="64">
+                        <Label x:Name="PlayPauseIcon" FontFamily="MaterialSymbols" FontSize="32"
+                               Text="{Binding PlayPauseGlyph}" TextColor="White"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPlayPauseTapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <Label FontFamily="MaterialSymbols" FontSize="34" Text="&#xe01f;"
+                           TextColor="White" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeekForwardCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <!-- низ: для LIVE — бейдж эфир + отмотка; для архива — полоса прокрутки -->
+                <Grid Padding="14,0,14,12" VerticalOptions="End">
+
+                    <!-- LIVE -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                          IsVisible="{Binding IsLive}">
+                        <Border BackgroundColor="{StaticResource Live}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8" Padding="8,3" VerticalOptions="Center">
+                            <Label Text="ЭФИР" FontFamily="OnestBold" FontSize="10" TextColor="White" />
+                        </Border>
+                        <Label Grid.Column="1" Text="отмотать назад" FontFamily="Onest" FontSize="12"
+                               TextColor="#CCFFFFFF" VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RewindLiveCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label Grid.Column="2" Style="{StaticResource Icon}" Text="{Binding FullscreenGlyph}" TextColor="White">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleFullscreenCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <!-- АРХИВ: полоса прокрутки -->
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10"
+                          IsVisible="{Binding IsArchive}">
+                        <Label Text="{Binding PositionText}" FontFamily="Onest" FontSize="11"
+                               TextColor="White" VerticalOptions="Center" />
+                        <Slider Grid.Column="1" x:Name="SeekSlider"
+                                Minimum="0" Maximum="1"
+                                MinimumTrackColor="{StaticResource Primary}"
+                                MaximumTrackColor="#66FFFFFF"
+                                ThumbColor="White"
+                                DragStarted="OnSeekDragStarted"
+                                DragCompleted="OnSeekDragCompleted"
+                                VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="{Binding DurationText}" FontFamily="Onest" FontSize="11"
+                               TextColor="White" VerticalOptions="Center" />
+                        <Label Grid.Column="3" Style="{StaticResource Icon}" Text="{Binding FullscreenGlyph}"
+                               TextColor="White" VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleFullscreenCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- ===== Инфо ===== -->
+        <ScrollView x:Name="InfoArea" Grid.Row="1" BackgroundColor="{StaticResource Background}">
+            <VerticalStackLayout Padding="20,20,20,24" Spacing="20">
+
+                <!-- карточка канала -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border BackgroundColor="{Binding TileColor}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14" WidthRequest="52" HeightRequest="52"
+                            VerticalOptions="Center">
+                        <Grid>
+                            <Label Text="{Binding Abbrev}" FontFamily="OnestBold" FontSize="17"
+                                   TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
+                                   IsVisible="{Binding HasIcon, Converter={StaticResource InvertBool}}" />
+                            <Image Source="{Binding IconUrl}" Aspect="AspectFit" Margin="6"
+                                   IsVisible="{Binding HasIcon}" />
+                        </Grid>
+                    </Border>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="{Binding ChannelName}" FontFamily="OnestBold" FontSize="17"
+                               TextColor="{StaticResource TextPrimary}" LineBreakMode="WordWrap" />
+                        <Label Text="{Binding ChannelNumberText}" FontFamily="OnestMedium" FontSize="14"
+                               TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+
+                    <Border Grid.Column="2" BackgroundColor="#FCE7E6" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 22" WidthRequest="48" HeightRequest="48"
+                            VerticalOptions="Center">
+                        <Label FontFamily="MaterialSymbols" FontSize="22" Text="&#xe87e;"
+                               TextColor="{Binding FavoriteColor}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleFavoriteCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- сейчас в эфире -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding HasEpg}">
+                    <Label Text="СЕЙЧАС В ЭФИРЕ" FontFamily="OnestMedium" FontSize="12"
+                           CharacterSpacing="1.5" TextColor="{StaticResource TextSecondary}" />
+                    <Label Text="{Binding CurrentProgram}" FontFamily="OnestBold" FontSize="17"
+                           TextColor="{StaticResource TextPrimary}" />
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" Margin="0,2,0,0">
+                        <Label Text="{Binding ProgramTime}" FontFamily="Onest" FontSize="13"
+                               TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+
+                        <!-- фирменный прогресс: трек + заполнение (ширина из code-behind) -->
+                        <Grid Grid.Column="1" HeightRequest="8" VerticalOptions="Center"
+                              x:Name="ProgramTrack">
+                            <Border BackgroundColor="#E3E8F0" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 4" />
+                            <BoxView x:Name="ProgramFill" Color="{StaticResource Primary}"
+                                     HorizontalOptions="Start" WidthRequest="0"
+                                     CornerRadius="4" />
+                        </Grid>
+
+                        <Label Grid.Column="2" Text="{Binding TimeLeft}" FontFamily="OnestMedium" FontSize="13"
+                               TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- далее -->
+                <Border BackgroundColor="#EDF1F7" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                        Padding="14,12" IsVisible="{Binding HasEpg}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 18"
+                                WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+                            <Label Style="{StaticResource Icon}" Text="&#xefd6;" FontSize="18"
+                                   TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                            <Label Text="ДАЛЕЕ" FontFamily="OnestMedium" FontSize="11"
+                                   CharacterSpacing="1" TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="{Binding NextProgram}" FontFamily="OnestBold" FontSize="14"
+                                   TextColor="{StaticResource TextPrimary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding NextTime}" FontFamily="OnestMedium" FontSize="13"
+                               TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- программа передач на день (архив) -->
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="ПРОГРАММА ПЕРЕДАЧ" FontFamily="OnestMedium" FontSize="12"
+                               CharacterSpacing="1.5" TextColor="{StaticResource TextSecondary}"
+                               VerticalOptions="Center" />
+                        <!-- кнопка вернуться к эфиру -->
+                        <Border Grid.Column="1" BackgroundColor="{StaticResource Live}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10" Padding="10,5">
+                            <Label Text="В ЭФИР" FontFamily="OnestBold" FontSize="11" TextColor="White" />
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PlayLiveCommand}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+
+                    <!-- лента дней -->
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="8" Padding="0,0,0,4"
+                                               BindableLayout.ItemsSource="{Binding Days}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:DayTab">
+                                    <Border BackgroundColor="{Binding BgColor}" StrokeThickness="0.5"
+                                            Stroke="#E3E8F0" StrokeShape="RoundRectangle 10" Padding="14,8">
+                                        <Label Text="{Binding Title}" FontFamily="OnestMedium" FontSize="13"
+                                               TextColor="{Binding TextColor}" />
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SelectDayCommand, Source={x:Reference Page}}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding DayEpg}" Spacing="2">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:EpgItem">
+                                <Border BackgroundColor="{Binding RowBg}" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 10" Padding="8,2">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,10">
+                                        <Label Text="{Binding StartTimeText}" FontFamily="OnestMedium" FontSize="14"
+                                           TextColor="{Binding TimeColor}" VerticalOptions="Center" WidthRequest="48" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Caption}" FontFamily="OnestBold" FontSize="14"
+                                               TextColor="{Binding CaptionColor}" LineBreakMode="TailTruncation" />
+                                            <Label Text="идёт сейчас" FontFamily="Onest" FontSize="11"
+                                               TextColor="{StaticResource Primary}" IsVisible="{Binding IsCurrent}" />
+                                            <Label Text="воспроизводится" FontFamily="Onest" FontSize="11"
+                                               TextColor="{StaticResource Primary}" IsVisible="{Binding IsSelected}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" FontFamily="MaterialSymbols" FontSize="20"
+                                           Text="{Binding StatusGlyph}" TextColor="{Binding StatusColor}"
+                                           VerticalOptions="Center" />
+                                    </Grid>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.PlayArchiveCommand, Source={x:Reference Page}}"
+                                                          CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

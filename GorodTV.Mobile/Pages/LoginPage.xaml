@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             x:Class="GorodTV.Pages.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Primary}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Паттерн в синей шапке (RowSpan=2, чтобы не было шва у скругления карточки) -->
+        <Image Grid.RowSpan="2"
+            Source="groups.svg"
+            Aspect="AspectFill"
+            VerticalOptions="Start"
+            Opacity="0.55" />
+
+        <!-- ===== Верхняя синяя зона: логотип и слоган ===== -->
+        <Grid Grid.Row="0" Padding="0,72,0,48">
+
+            <!-- декоративные круги, как на макете (анимируются в code-behind) -->
+            <Ellipse x:Name="Blob1"
+                 Fill="#22FFFFFF" WidthRequest="220" HeightRequest="220"
+                 HorizontalOptions="End" VerticalOptions="Start"
+                 TranslationX="80" TranslationY="-90" />
+            <Ellipse x:Name="Blob2"
+                 Fill="#1A0E2E66" WidthRequest="180" HeightRequest="180"
+                 HorizontalOptions="Start" VerticalOptions="End"
+                 TranslationX="-70" TranslationY="60" />
+            <Ellipse x:Name="Blob3"
+                 Fill="#14FFFFFF" WidthRequest="140" HeightRequest="140"
+                 HorizontalOptions="Start" VerticalOptions="Start"
+                 TranslationX="-50" TranslationY="-60" />
+
+            <VerticalStackLayout Spacing="18" HorizontalOptions="Center">
+                <!-- Логотип Инфо-Лан ТВ (Resources/Images/logo_infolan.svg) -->
+                <Image Source="logo_infolan.png"
+                   WidthRequest="230"
+                   HeightRequest="37"
+                   HorizontalOptions="Center" />
+
+                <Label Text="ВСЕГДА ЕСТЬ ЧТО ПОСМОТРЕТЬ!"
+                   FontFamily="OnestMedium" FontSize="14"
+                   CharacterSpacing="1.2"
+                   TextColor="#CCFFFFFF" HorizontalOptions="Center" />
+
+                <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                    <Label Text="99"
+                       FontFamily="OnestBold" FontSize="44"
+                       TextColor="White" HorizontalOptions="Center" />
+                    <Label Text="ТВ КАНАЛОВ"
+                       FontFamily="OnestMedium" FontSize="13"
+                       CharacterSpacing="2"
+                       TextColor="#CCFFFFFF" HorizontalOptions="Center"
+                       Margin="0,-4,0,0" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- ===== Нижняя карточка: форма входа ===== -->
+        <Border Grid.Row="1"
+            BackgroundColor="{StaticResource Surface}"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 28,28,0,0"
+            Padding="24,32,24,24"
+            VerticalOptions="Fill">
+
+            <VerticalStackLayout Spacing="20">
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Style="{StaticResource H1}" Text="Вход в кабинет" />
+                    <Label Style="{StaticResource Subtitle}" Text="Войдите по номеру договора" />
+                </VerticalStackLayout>
+
+                <!-- Номер договора -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="Номер договора" />
+                    <Border x:Name="ContractBorder" Style="{StaticResource InputBorder}"
+                        Stroke="{StaticResource Primary}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Style="{StaticResource Icon}"
+                               Text="{StaticResource IconBadge}"
+                               TextColor="{StaticResource Primary}" />
+                            <Entry Grid.Column="1"
+                               Text="{Binding Contract}"
+                               Style="{StaticResource InputEntry}"
+                               Placeholder="0000-0000-00"
+                               Keyboard="Numeric" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Пароль -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="Пароль" />
+                    <Border Style="{StaticResource InputBorder}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Style="{StaticResource Icon}"
+                               Text="{StaticResource IconLock}" />
+                            <Entry Grid.Column="1"
+                               Text="{Binding Password}"
+                               Style="{StaticResource InputEntry}"
+                               Placeholder="••••••••"
+                               IsPassword="{Binding IsPasswordHidden}" />
+                            <Label Grid.Column="2"
+                               Style="{StaticResource Icon}"
+                               Text="{Binding EyeGlyph}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding TogglePasswordCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Запомнить / Забыли пароль -->
+                <Grid ColumnDefinitions="Auto,Auto,*">                    
+                    <Label Grid.Column="2" Text="Забыли пароль?"
+                       FontFamily="OnestBold" FontSize="14"
+                       TextColor="{StaticResource Primary}"
+                       HorizontalOptions="End" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+
+                <Grid>
+                    <Button Style="{StaticResource PrimaryButton}"
+                        Text="Войти"
+                        Command="{Binding LoginCommand}"
+                        IsEnabled="{Binding IsNotBusy}">                        
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsBusy}" Value="True">
+                                <Setter Property="Text" Value="" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <!-- спиннер поверх кнопки, виден только при загрузке -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       Color="White"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="26" HeightRequest="26"
+                       InputTransparent="True" />
+                </Grid>
+
+                <!-- Нет договора -->
+                <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="Нет договора?"
+                       Style="{StaticResource Subtitle}" FontSize="14" />
+                    <Label Text="Подключиться"
+                       FontFamily="OnestBold" FontSize="14"
+                       TextColor="{StaticResource TextPrimary}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ConnectCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+
+
+</ContentPage>

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ===== Палитра ===== -->
+    <Color x:Key="Primary">#1B66E5</Color>
+    <Color x:Key="PrimaryDark">#1453BE</Color>
+    <Color x:Key="Live">#E5342B</Color>
+    <Color x:Key="Background">#F5F7FA</Color>
+    <Color x:Key="Surface">#FFFFFF</Color>
+    <Color x:Key="TextPrimary">#15191E</Color>
+    <Color x:Key="TextSecondary">#8A94A6</Color>
+    <Color x:Key="Stroke">#E3E8F0</Color>
+    <Color x:Key="FieldBg">#F8FAFD</Color>
+
+    <!-- Кнопка-карточка для ТВ: фокусируется пультом, подсветка через VisualState -->
+    <Style x:Key="TvCardButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontFamily" Value="OnestBold" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="1.0" />
+                            <Setter Property="BorderColor" Value="Transparent" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <!-- Focused: вот что видит пользователь при наведении пультом -->
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="1.08" />
+                            <Setter Property="BorderColor" Value="{StaticResource Primary}" />
+                            <Setter Property="BorderWidth" Value="3" />
+                            <Setter Property="BackgroundColor" Value="#EAF1FE" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="1.02" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
