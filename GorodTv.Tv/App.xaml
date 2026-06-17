@@ -12,6 +12,8 @@
                 <ResourceDictionary Source="Resources/Styles/TvDialogStyles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/TvKeyStyles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/TvCategoryStyles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/TvPlayerStyle.xaml" />
+                <ResourceDictionary Source="Resources/Styles/TvEpgStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

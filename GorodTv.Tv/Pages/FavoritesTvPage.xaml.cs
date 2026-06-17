@@ -24,7 +24,6 @@ public partial class FavoritesTvPage : ContentPage
 
         _vm.Channels.CollectionChanged += (_, _) => BuildCards();
     }
-
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -53,7 +52,7 @@ public partial class FavoritesTvPage : ContentPage
     private async void OnChannelClicked(object? sender, EventArgs e)
     {
         if (sender is Button { CommandParameter: ChannelItem ch })
-            await Shell.Current.GoToAsync($"player?channel={ch.Id}");
+            await Shell.Current.GoToAsync($"player?id={ch.Id}&name={Uri.EscapeDataString(ch.Name)}");
     }
 
     private async void OnNavCategories(object? sender, EventArgs e)

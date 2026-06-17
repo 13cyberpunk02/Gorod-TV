@@ -3,6 +3,7 @@ using GorodTV.Core.Models;
 
 namespace GorodTv.Tv.Controls;
 
+// общий построитель карточки канала (используют список каналов и избранное)
 public static class TvChannelCard
 {
     public static View Build(ChannelItem ch, double cardWidth, double previewHeight,
@@ -14,6 +15,7 @@ public static class TvChannelCard
             StrokeThickness = 0,
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 16 },
             WidthRequest = cardWidth,
+            HeightRequest = previewHeight + 70,   // превью + блок названия/передачи
             Margin = new Thickness(8),
             Padding = 0
         };
@@ -28,12 +30,40 @@ public static class TvChannelCard
             RowSpacing = 0
         };
 
+        // превью: логотип канала крупно (если есть), иначе цветной фон с аббревиатурой
+        View previewContent;
+        if (ch.HasIcon)
+        {
+            previewContent = new Image
+            {
+                Source = ch.IconUrl,
+                Aspect = Aspect.AspectFit,
+                Margin = new Thickness(24),
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            };
+        }
+        else
+        {
+            previewContent = new Label
+            {
+                Text = ch.Abbrev,
+                FontFamily = "OnestBold",
+                FontSize = 32,
+                TextColor = Colors.White,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            };
+        }
+
         var preview = new Grid
         {
-            BackgroundColor = Color.FromArgb("#1A2230"),
-            Padding = new Thickness(12)
+            BackgroundColor = ch.HasIcon ? Color.FromArgb("#1E2530") : ch.TileColor,
+            Padding = new Thickness(8)
         };
+        preview.Children.Add(previewContent);
 
+        // бейдж ЭФИР поверх превью (если идёт эфир)
         if (ch.IsLive)
         {
             preview.Children.Add(new Border
@@ -53,26 +83,6 @@ public static class TvChannelCard
                 }
             });
         }
-
-        preview.Children.Add(new Border
-        {
-            BackgroundColor = ch.TileColor,
-            StrokeThickness = 0,
-            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 },
-            WidthRequest = 40,
-            HeightRequest = 32,
-            HorizontalOptions = LayoutOptions.Start,
-            VerticalOptions = LayoutOptions.End,
-            Content = new Label
-            {
-                Text = ch.Abbrev,
-                FontFamily = "OnestBold",
-                FontSize = 13,
-                TextColor = Colors.White,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            }
-        });
         Grid.SetRow(preview, 0);
         root.Children.Add(preview);
 
@@ -85,14 +95,27 @@ public static class TvChannelCard
             TextColor = Colors.White,
             LineBreakMode = LineBreakMode.TailTruncation
         });
-        info.Children.Add(new Label
+
+        // строка текущей передачи (EPG подгружается асинхронно -> обновим по событию)
+        var programLabel = new Label
         {
-            Text = ch.HasEpg ? ch.CurrentProgram : " ",
+            Text = string.IsNullOrWhiteSpace(ch.CurrentProgram) ? " " : ch.CurrentProgram,
             FontFamily = "Onest",
             FontSize = 12,
             TextColor = Color.FromArgb("#8A94A6"),
             LineBreakMode = LineBreakMode.TailTruncation
-        });
+        };
+        info.Children.Add(programLabel);
+
+        ch.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ChannelItem.CurrentProgram))
+            {
+                var text = ch.CurrentProgram;
+                programLabel.Dispatcher.Dispatch(() =>
+                    programLabel.Text = string.IsNullOrWhiteSpace(text) ? " " : text);
+            }
+        };
         Grid.SetRow(info, 1);
         root.Children.Add(info);
 
@@ -113,4 +136,3 @@ public static class TvChannelCard
         return card;
     }
 }
-

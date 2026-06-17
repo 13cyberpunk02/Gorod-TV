@@ -75,6 +75,9 @@ public partial class ChannelListViewModel : ObservableObject, IQueryAttributable
             Channels.Clear();
             foreach (var c in items)
                 Channels.Add(c);
+
+            // подтянуть текущую передачу для каждого канала (как в избранном)
+            _ = LoadEpgForChannelsAsync(items);
         }
         catch (Exception)
         {
@@ -85,6 +88,32 @@ public partial class ChannelListViewModel : ObservableObject, IQueryAttributable
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    // текущая передача под названием канала (как в FavoritesViewModel)
+    private async Task LoadEpgForChannelsAsync(IReadOnlyList<ChannelItem> channels)
+    {
+        long now;
+        try { now = await _channels.GetServerTimeAsync(); }
+        catch { now = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); }
+
+        foreach (var ch in channels)
+        {
+            try
+            {
+                var epg = await _channels.GetEpgForDayAsync(ch.Id.ToString(), now - 86400);
+                EpgItem? current = null;
+                foreach (var e in epg)
+                    if (e.StartTimeUnix <= now) current = e; else break;
+
+                if (current is not null)
+                {
+                    ch.CurrentProgram = current.Caption;  // ObservableProperty -> UI обновится
+                    ch.IsLive = true;
+                }
+            }
+            catch { /* EPG не критичен */ }
         }
     }
 

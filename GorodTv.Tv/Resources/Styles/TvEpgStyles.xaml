@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- чип дня (Сегодня/Вчера/...) -->
+    <Style x:Key="TvDayChip" TargetType="Button">
+        <Setter Property="FontFamily" Value="OnestBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="#B9C4D4" />
+        <Setter Property="BackgroundColor" Value="#1A2230" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="Padding" Value="20,0" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="#1A2230" />
+                            <Setter Property="BorderColor" Value="Transparent" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                            <Setter Property="TextColor" Value="White" />
+                            <Setter Property="BorderColor" Value="White" />
+                            <Setter Property="BorderWidth" Value="2" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- строка передачи -->
+    <Style x:Key="TvEpgRow" TargetType="Button">
+        <Setter Property="FontFamily" Value="OnestMedium" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="BorderColor" Value="Transparent" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="#1A2230" />
+                            <Setter Property="BorderColor" Value="{StaticResource Primary}" />
+                            <Setter Property="BorderWidth" Value="2" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="#3A4252" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

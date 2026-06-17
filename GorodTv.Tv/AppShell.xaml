@@ -5,6 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:GorodTv.Tv.Pages"
     Title="GorodTv.Tv">
+    
+    
+    <ShellContent
+        ContentTemplate="{DataTemplate pages:SplashTvPage}"
+        Route="splash" />
+
 
     <ShellContent
         ContentTemplate="{DataTemplate pages:LoginTvPage}"
@@ -17,13 +23,5 @@
     <ShellContent
         ContentTemplate="{DataTemplate pages:FavoritesTvPage}"
         Route="favorites" />
-
-    <ShellContent
-        ContentTemplate="{DataTemplate pages:ChannelListTvPage}"
-        Route="channellist" />
-
-    <ShellContent
-        ContentTemplate="{DataTemplate pages:PlayerTvPage}"
-        Route="player" />
 
 </Shell>

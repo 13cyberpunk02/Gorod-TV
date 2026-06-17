@@ -1,12 +1,117 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"             
              x:Class="GorodTv.Tv.Pages.PlayerTvPage"
-             Title="PlayerTvPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:PlayerViewModel"
+             x:Name="Page"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="Black">
+
+    <Grid>
+        <!-- ВИДЕО на весь экран -->
+        <toolkit:MediaElement x:Name="Media"
+                              Aspect="AspectFit"
+                              ShouldAutoPlay="True"
+                              ShouldShowPlaybackControls="False"
+                              Background="Black"
+                              HorizontalOptions="Fill" VerticalOptions="Fill" />
+
+        <!-- ОВЕРЛЕЙ КОНТРОЛОВ (показывается по OK/вниз, скрывается по таймеру) -->
+        <Grid x:Name="ControlsOverlay" IsVisible="False"
+              BackgroundColor="#660B0E13" RowDefinitions="Auto,*,Auto" Padding="40,28">
+
+            <!-- верх: назад + бейдж эфир/архив + качество -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                <Border BackgroundColor="#E5342B" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 10" Padding="12,6"
+                        HorizontalOptions="Start" VerticalOptions="Start"
+                        IsVisible="{Binding IsLive}">
+                    <Label Text="● ПРЯМОЙ ЭФИР" FontFamily="OnestBold" FontSize="13" TextColor="White" />
+                </Border>
+                <Label Grid.Column="2" Text="HD · стерео" FontFamily="OnestMedium" FontSize="13"
+                       TextColor="#B9C4D4" VerticalOptions="Start" />
+            </Grid>
+
+            <!-- низ: название + передача + прогресс + кнопки -->
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+
+                <!-- название канала + кнопки управления -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="End">
+                        <Label Text="{Binding CurrentProgram}" FontFamily="OnestBold" FontSize="22"
+                               TextColor="White" LineBreakMode="TailTruncation" />
+                        <Label Text="{Binding ProgramTime}" FontFamily="Onest" FontSize="14"
+                               TextColor="#B9C4D4" />
+                    </VerticalStackLayout>
+
+                    <!-- кнопки: play/pause, настройки -->
+                    <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="End">
+                        <Button x:Name="PlayPauseBtn" Style="{StaticResource TvPlayerButton}"
+                                Text="{Binding PlayPauseGlyph}" Clicked="OnPlayPause" />
+                        <Button x:Name="EpgBtn" Style="{StaticResource TvPlayerButton}"
+                                Text="&#xe9b0;" Clicked="OnOpenEpg" />
+                        <Button x:Name="FavoriteBtn" Style="{StaticResource TvPlayerButton}"
+                                Text="&#xe87e;" TextColor="{Binding FavoriteColor}"
+                                Clicked="OnToggleFavorite" />
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <!-- прогресс (только архив): фокусируемый seek-бар -->
+                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                      IsVisible="{Binding IsArchive}">
+                    <Label Text="{Binding PositionText}" FontFamily="Onest" FontSize="12"
+                           TextColor="White" VerticalOptions="Center" />
+                    <Grid Grid.Column="1" VerticalOptions="Center" HeightRequest="28">
+                        <!-- трек -->
+                        <Border HeightRequest="6" VerticalOptions="Center"
+                                x:Name="ProgressTrack" BackgroundColor="#33FFFFFF"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 3">
+                            <BoxView x:Name="ProgressFill" Color="{StaticResource Primary}"
+                                     HorizontalOptions="Start" WidthRequest="0" />
+                        </Border>
+                        <!-- белый КРУГ-маркер через Border (скругляется корректно) -->
+                        <Border x:Name="SeekThumb" BackgroundColor="White"
+                                WidthRequest="16" HeightRequest="16" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                HorizontalOptions="Start" VerticalOptions="Center"
+                                TranslationX="0" />
+                        <!-- фокус-кнопка БЕЗ фона/размера на баре: крошечная, прозрачная,
+                             прижата в угол, чтобы её фокус-фон не перекрывал бар -->
+                        <Button x:Name="SeekFocus" BackgroundColor="Transparent"
+                                Style="{StaticResource TvSeekFocus}"
+                                WidthRequest="1" HeightRequest="1" Opacity="0"
+                                HorizontalOptions="Start" VerticalOptions="Center"
+                                Focused="OnSeekFocused" Unfocused="OnSeekUnfocused" />
+                    </Grid>
+                    <Label Grid.Column="2" Text="{Binding DurationText}" FontFamily="Onest" FontSize="12"
+                           TextColor="White" VerticalOptions="Center" />
+                </Grid>
+
+                <!-- подсказка управления -->
+                <Label Grid.Row="2" FontFamily="Onest" FontSize="12" TextColor="#5B6B82"
+                       Text="OK — пауза · ← → перемотка (архив) · Назад — выход" />
+            </Grid>
+        </Grid>
+        <!-- ПАНЕЛЬ EPG (выезжает снизу по кнопке «Программа») -->
+        <Grid x:Name="EpgPanel" IsVisible="False" BackgroundColor="#F20B0E13"
+              RowDefinitions="Auto,Auto,*" Padding="40,24" RowSpacing="14"
+              VerticalOptions="End" HeightRequest="380">
+
+            <Label Grid.Row="0" Text="ПРОГРАММА ПЕРЕДАЧ" FontFamily="OnestBold"
+                   FontSize="14" TextColor="#5B6B82" />
+
+            <!-- лента дней -->
+            <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout x:Name="DaysHost" Spacing="8" />
+            </ScrollView>
+
+            <!-- список передач -->
+            <ScrollView Grid.Row="2">
+                <VerticalStackLayout x:Name="ProgramsHost" Spacing="4" />
+            </ScrollView>
+        </Grid>
+    </Grid>
+
 </ContentPage>

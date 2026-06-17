@@ -13,8 +13,6 @@ public partial class ChannelListTvPage : ContentPage
 
     private const double CardWidth = 236;
     private const double PreviewHeight = 116;
-
-
     public ChannelListTvPage(ChannelListViewModel vm, IGorodTvService tv, IDialogService dialogs)
 	{
         InitializeComponent();
@@ -23,7 +21,6 @@ public partial class ChannelListTvPage : ContentPage
         _tv = tv;
         _dialogs = dialogs;
 
-        // перестроить карточки, когда загрузка завершится (IsBusy -> false)
         _vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ChannelListViewModel.IsBusy) && !_vm.IsBusy)
@@ -34,31 +31,22 @@ public partial class ChannelListTvPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // если данные уже есть — построить сразу; иначе построятся по завершении загрузки
         BuildCards();
     }
 
     private void BuildCards()
     {
         ChannelsHost.Children.Clear();
-
-        // ВРЕМЕННАЯ ДИАГНОСТИКА: показать число каналов и CategoryId
-        ChannelsHost.Children.Add(new Label
-        {
-            Text = $"DEBUG: каналов={_vm.Channels.Count}, cat={_vm.CategoryId}, busy={_vm.IsBusy}",
-            TextColor = Colors.Yellow,
-            FontSize = 12
-        });
-
         foreach (var ch in _vm.Channels)
             ChannelsHost.Children.Add(BuildCard(ch));
 
-        Dispatcher.Dispatch(async () =>
-        {
-            await Task.Delay(150);
-            var first = ChannelsHost.GetVisualTreeDescendants().OfType<Button>().FirstOrDefault();
-            first?.Focus();
-        });
+        if (_vm.Channels.Count > 0)
+            Dispatcher.Dispatch(async () =>
+            {
+                await Task.Delay(150);
+                var first = ChannelsHost.GetVisualTreeDescendants().OfType<Button>().FirstOrDefault();
+                first?.Focus();
+            });
     }
 
     private View BuildCard(ChannelItem ch)
@@ -67,10 +55,9 @@ public partial class ChannelListTvPage : ContentPage
     private async void OnChannelClicked(object? sender, EventArgs e)
     {
         if (sender is Button { CommandParameter: ChannelItem ch })
-            await Shell.Current.GoToAsync($"player?channel={ch.Id}");
+            await Shell.Current.GoToAsync($"player?id={ch.Id}&name={Uri.EscapeDataString(ch.Name)}");
     }
 
-    // ===== Сайдбар =====
     private async void OnNavCategories(object? sender, EventArgs e)
         => await Shell.Current.GoToAsync("//categories");
 

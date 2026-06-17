@@ -218,7 +218,6 @@ public partial class PlayerViewModel : ObservableObject
         DurationSeconds = Math.Max(1, _archiveProgramEnd - _archiveProgramStart);
         PositionText = "0:00";
         DurationText = Format(TimeSpan.FromSeconds(DurationSeconds));
-        OnPropertyChanged(nameof(Progress01));   // форсим обновление бегунка на 0
 
         StreamUrl = StreamUrlBuilder.Build(_rawLink, unixTime);
     }
@@ -292,7 +291,19 @@ public partial class PlayerViewModel : ObservableObject
     private string _currentProgram = "";
 
     [ObservableProperty] private string _programTime = "";
-    [ObservableProperty] private double _programProgress;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ProgramColumns))]
+    private double _programProgress;
+
+    // доли для фирменного прогресса: заполнено* / осталось*
+    public string ProgramColumns
+    {
+        get
+        {
+            double f = Math.Clamp(ProgramProgress, 0.001, 0.999);
+            return $"{f.ToString(System.Globalization.CultureInfo.InvariantCulture)}*,{(1 - f).ToString(System.Globalization.CultureInfo.InvariantCulture)}*";
+        }
+    }
     [ObservableProperty] private string _timeLeft = "";
     [ObservableProperty] private string _nextProgram = "";
     [ObservableProperty] private string _nextTime = "";
@@ -307,7 +318,7 @@ public partial class PlayerViewModel : ObservableObject
     public Color FavoriteColor => IsFavorite ? Color.FromArgb("#E5342B") : Color.FromArgb("#C7CEDA");
 
     [RelayCommand]
-    private void ToggleFavorite() => IsFavorite = !IsFavorite;
+    private void ToggleFavorite() => IsFavorite = _tv.ToggleFavorite(ChannelId);
 
     // ===== Другие каналы =====
     public ObservableCollection<ChannelItem> OtherChannels { get; } = new();
@@ -340,6 +351,7 @@ public partial class PlayerViewModel : ObservableObject
                 _rawLink = current.Link;
                 StreamUrl = StreamUrlBuilder.Build(current.Link, 0); // 0 = прямой эфир
                 IsLive = true;
+                IsFavorite = _tv.IsFavorite(ChannelId);
                 _epgId = current.EpgId;
                 _channelIdForEpg = current.Id.ToString();
                 if (string.IsNullOrWhiteSpace(ChannelName))
