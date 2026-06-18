@@ -1,6 +1,5 @@
 using GorodTv.Tv.Controls;
 using GorodTV.Core.Models;
-using GorodTV.Core.Services;
 using GorodTV.Core.ViewModels;
 
 namespace GorodTv.Tv.Pages;
@@ -30,9 +29,7 @@ public partial class FavoritesTvPage : ContentPage
 
     private void BuildCards()
     {
-        ChannelsHost.Children.Clear();
-        foreach (var ch in _vm.Channels)
-            ChannelsHost.Children.Add(TvChannelCard.Build(ch, CardWidth, PreviewHeight, OnChannelClicked));
+        LayoutCardsInGrid(_vm.Channels);
 
         bool empty = _vm.Channels.Count == 0;
         EmptyState.IsVisible = empty;
@@ -44,6 +41,28 @@ public partial class FavoritesTvPage : ContentPage
                 var first = ChannelsHost.GetVisualTreeDescendants().OfType<Button>().FirstOrDefault();
                 first?.Focus();
             });
+    }
+
+    private const int Columns = 3;
+
+    private void LayoutCardsInGrid(IEnumerable<ChannelItem> channels)
+    {
+        ChannelsHost.Children.Clear();
+        ChannelsHost.ColumnDefinitions.Clear();
+        ChannelsHost.RowDefinitions.Clear();
+
+        for (int c = 0; c < Columns; c++)
+            ChannelsHost.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        int i = 0;
+        foreach (var ch in channels)
+        {
+            int row = i / Columns, col = i % Columns;
+            if (col == 0)
+                ChannelsHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            ChannelsHost.Add(TvChannelCard.Build(ch, CardWidth, PreviewHeight, OnChannelClicked), col, row);
+            i++;
+        }
     }
 
     private async void OnChannelClicked(object? sender, EventArgs e)

@@ -32,9 +32,7 @@ public partial class ChannelListTvPage : ContentPage
 
     private void BuildCards()
     {
-        ChannelsHost.Children.Clear();
-        foreach (var ch in _vm.Channels)
-            ChannelsHost.Children.Add(BuildCard(ch));
+        LayoutCardsInGrid(_vm.Channels);
 
         if (_vm.Channels.Count > 0)
             Dispatcher.Dispatch(async () =>
@@ -43,6 +41,30 @@ public partial class ChannelListTvPage : ContentPage
                 var first = ChannelsHost.GetVisualTreeDescendants().OfType<Button>().FirstOrDefault();
                 first?.Focus();
             });
+    }
+
+    private const int Columns = 3;
+
+    private void LayoutCardsInGrid(IEnumerable<ChannelItem> channels)
+    {
+        ChannelsHost.Children.Clear();
+        ChannelsHost.ColumnDefinitions.Clear();
+        ChannelsHost.RowDefinitions.Clear();
+
+        for (int c = 0; c < Columns; c++)
+            ChannelsHost.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        int i = 0;
+        foreach (var ch in channels)
+        {
+            int row = i / Columns, col = i % Columns;
+            if (col == 0)
+                ChannelsHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var card = BuildCard(ch);
+            ChannelsHost.Add(card, col, row);
+            i++;
+        }
     }
 
     private View BuildCard(ChannelItem ch)
@@ -56,4 +78,3 @@ public partial class ChannelListTvPage : ContentPage
 
 
 }
- 

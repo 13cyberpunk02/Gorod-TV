@@ -23,8 +23,8 @@
 
             <!-- карточки каналов строятся из code-behind -->
             <ScrollView Grid.Row="1">
-                <FlexLayout x:Name="ChannelsHost" Wrap="Wrap"
-                            JustifyContent="Start" AlignContent="Start" />
+                <Grid x:Name="ChannelsHost" ColumnSpacing="0" RowSpacing="0"
+                      HorizontalOptions="Start" />
             </ScrollView>
         </Grid>
     </Grid>
