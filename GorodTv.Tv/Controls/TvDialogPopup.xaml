@@ -5,30 +5,31 @@
              x:Class="GorodTv.Tv.Controls.TvDialogPopup"
              x:TypeArguments="x:Boolean"
              CanBeDismissedByTappingOutsideOfPopup="False"
+             BackgroundColor="#CC000000"
              Padding="0" Margin="0">
 
-    <!-- карточка по центру тёмного полупрозрачного фона --> 
-    <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 24"
-            WidthRequest="640" HorizontalOptions="Center" VerticalOptions="Center"
-            Padding="40,36">
-        <VerticalStackLayout Spacing="20">
+    <!-- компактная карточка по центру (~1/4 экрана по ширине) -->
+    <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 18"
+            WidthRequest="360" HorizontalOptions="Center" VerticalOptions="Center"
+            Padding="24,22">
+        <VerticalStackLayout Spacing="12">
 
             <Border x:Name="IconCircle" BackgroundColor="#1E2A3D" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 36" WidthRequest="72" HeightRequest="72"
+                    StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48"
                     HorizontalOptions="Center">
-                <Label x:Name="IconLabel" FontFamily="MaterialSymbols" FontSize="36"
+                <Label x:Name="IconLabel" FontFamily="MaterialSymbols" FontSize="24"
                        TextColor="{StaticResource Primary}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
             </Border>
 
-            <Label x:Name="TitleLabel" FontFamily="OnestBold" FontSize="26"
+            <Label x:Name="TitleLabel" FontFamily="OnestBold" FontSize="18"
                    TextColor="White" HorizontalTextAlignment="Center" />
 
-            <Label x:Name="MessageLabel" FontFamily="Onest" FontSize="18"
+            <Label x:Name="MessageLabel" FontFamily="Onest" FontSize="13"
                    TextColor="#B9C4D4" HorizontalTextAlignment="Center" />
 
-            <!-- кнопки: фокусируемые под пульт -->
-            <Grid x:Name="ButtonsGrid" ColumnDefinitions="*,*" ColumnSpacing="16" Margin="0,8,0,0">
+            <!-- кнопки: фокусируемые под пульт, с отступом чтобы рамка не обрезалась -->
+            <Grid x:Name="ButtonsGrid" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,6,0,0">
                 <Button x:Name="CancelButton" Grid.Column="0" Text="Отмена"
                         Style="{StaticResource TvDialogCancel}" Clicked="OnCancel" IsVisible="False" />
                 <Button x:Name="OkButton" Grid.Column="1" Text="ОК"

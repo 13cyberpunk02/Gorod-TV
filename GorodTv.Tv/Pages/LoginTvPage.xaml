@@ -8,6 +8,7 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="#0B0E13">
 
+    <!-- экран ~960x540 точек (1080p при density 2.0). overscan-отступ ~5% -->
     <Grid ColumnDefinitions="*,*" Padding="36,28" ColumnSpacing="24">
 
         <!-- ЛЕВО: герой-панель -->
@@ -18,10 +19,17 @@
                 <HorizontalStackLayout Grid.Row="0" Spacing="12">
                     <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 10" WidthRequest="40" HeightRequest="40">
-                        <Image Source="logo_infolan.svg" Aspect="AspectFit" Margin="7" />
+                        <Image Source="appicon.svg" Aspect="AspectFit" Margin="7" />
                     </Border>
-                    <Label Text="Инфо-Лан ТВ" FontFamily="OnestBold" FontSize="20"
-                           TextColor="White" VerticalOptions="Center" />
+                    <!-- локап «Город ТВ» -->
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label Text="Город" FontFamily="OnestBold" FontSize="20"
+                               TextColor="White" VerticalOptions="Center" />
+                        <Border BackgroundColor="#E5342B" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 6" Padding="6,2" VerticalOptions="Center">
+                            <Label Text="ТВ" FontFamily="OnestBold" FontSize="13" TextColor="White" />
+                        </Border>
+                    </HorizontalStackLayout>
                 </HorizontalStackLayout>
 
                 <VerticalStackLayout Grid.Row="1" Spacing="12" VerticalOptions="Center">
@@ -43,10 +51,10 @@
 
                 <HorizontalStackLayout Grid.Row="2" Spacing="8">
                     <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
-                        <Label Text="HD и 4K" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
+                        <Label Text="HD и камеры по городу" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
                     </Border>
                     <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
-                        <Label Text="Архив 7 дней" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
+                        <Label Text="Архив 14 дней" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
                     </Border>
                     <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
                         <Label Text="На всех экранах" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />

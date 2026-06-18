@@ -8,22 +8,19 @@ namespace GorodTv.Tv.Pages;
 public partial class FavoritesTvPage : ContentPage
 {
     private readonly FavoritesViewModel _vm;
-    private readonly IGorodTvService _tv;
-    private readonly IDialogService _dialogs;
 
     private const double CardWidth = 236;
     private const double PreviewHeight = 116;
 
-    public FavoritesTvPage(FavoritesViewModel vm, IGorodTvService tv, IDialogService dialogs)
-	{
+    public FavoritesTvPage(FavoritesViewModel vm)
+    {
         InitializeComponent();
         BindingContext = vm;
         _vm = vm;
-        _tv = tv;
-        _dialogs = dialogs;
 
         _vm.Channels.CollectionChanged += (_, _) => BuildCards();
     }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -55,19 +52,5 @@ public partial class FavoritesTvPage : ContentPage
             await Shell.Current.GoToAsync($"player?id={ch.Id}&name={Uri.EscapeDataString(ch.Name)}");
     }
 
-    private async void OnNavCategories(object? sender, EventArgs e)
-        => await Shell.Current.GoToAsync("//categories");
 
-    private void OnNavFavorites(object? sender, EventArgs e) { /* уже здесь */ }
-
-    private async void OnLogout(object? sender, EventArgs e)
-    {
-        bool ok = await _dialogs.ConfirmAsync(
-            "Выйти из аккаунта?",
-            "Нужно будет снова ввести номер договора и пароль.",
-            "Выйти", "Отмена", AlertKind.Info);
-        if (!ok) return;
-        _tv.Logout();
-        await Shell.Current.GoToAsync("//login");
-    }
 }

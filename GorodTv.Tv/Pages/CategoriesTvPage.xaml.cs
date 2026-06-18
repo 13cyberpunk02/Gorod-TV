@@ -6,24 +6,18 @@ namespace GorodTv.Tv.Pages;
 
 public partial class CategoriesTvPage : ContentPage
 {
-
     private readonly CategoriesViewModel _vm;
-    private readonly IGorodTvService _tv;
-    private readonly IDialogService _dialogs;
     private bool _built;
 
     // размеры карточки под 960x540 (контент-зона ~876 шириной -> 3 в ряд)
     private const double CardWidth = 236;
     private const double CardHeight = 140;
 
-
-    public CategoriesTvPage(CategoriesViewModel vm, IGorodTvService tv, IDialogService dialogs)
-	{
+    public CategoriesTvPage(CategoriesViewModel vm)
+    {
         InitializeComponent();
         BindingContext = vm;
         _vm = vm;
-        _tv = tv;
-        _dialogs = dialogs;
     }
 
     protected override async void OnAppearing()
@@ -143,22 +137,5 @@ public partial class CategoriesTvPage : ContentPage
     {
         if (sender is Button { CommandParameter: CategoryItem cat })
             await _vm.OpenCategoryCommand.ExecuteAsync(cat);
-    }
-
-    // ===== Сайдбар =====
-    private void OnNavCategories(object? sender, EventArgs e) { /* уже здесь */ }
-
-    private async void OnNavFavorites(object? sender, EventArgs e)
-        => await Shell.Current.GoToAsync("favorites");
-
-    private async void OnLogout(object? sender, EventArgs e)
-    {
-        bool ok = await _dialogs.ConfirmAsync(
-            "Выйти из аккаунта?",
-            "Нужно будет снова ввести номер договора и пароль.",
-            "Выйти", "Отмена", AlertKind.Info);
-        if (!ok) return;
-        _tv.Logout();
-        await Shell.Current.GoToAsync("//login");
     }
 }

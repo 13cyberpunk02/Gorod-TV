@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             xmlns:ctrl="clr-namespace:GorodTv.Tv.Controls"
              x:Class="GorodTv.Tv.Pages.ChannelListTvPage"
              x:DataType="vm:ChannelListViewModel"
              x:Name="Page"
@@ -10,25 +11,7 @@
 
     <Grid ColumnDefinitions="96,*">
 
-        <!-- САЙДБАР (как на категориях) -->
-        <Grid Grid.Column="0" RowDefinitions="Auto,*" Padding="16,20,8,20" RowSpacing="16">
-            <Border Grid.Row="0" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 12" WidthRequest="48" HeightRequest="48"
-                    HorizontalOptions="Center">
-                <Image Source="logo_infolan.svg" Aspect="AspectFit" Margin="9" />
-            </Border>
-            <Border Grid.Row="1" BackgroundColor="#0E1320" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 20" VerticalOptions="Center" Padding="8,16">
-                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Button x:Name="NavCategories" Style="{StaticResource TvNavButton}"
-                            Text="&#xe9b0;" Clicked="OnNavCategories" />
-                    <Button x:Name="NavFavorites" Style="{StaticResource TvNavButton}"
-                            Text="&#xe87e;" Clicked="OnNavFavorites" />
-                    <Button x:Name="NavLogout" Style="{StaticResource TvNavButton}"
-                            Text="&#xe9ba;" Clicked="OnLogout" />
-                </VerticalStackLayout>
-            </Border>
-        </Grid>
+        <ctrl:TvSidebar Grid.Column="0" />
 
         <!-- КОНТЕНТ -->
         <Grid Grid.Column="1" RowDefinitions="Auto,*" Padding="40,28,40,28" RowSpacing="18">

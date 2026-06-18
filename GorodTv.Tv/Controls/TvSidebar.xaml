@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GorodTv.Tv.Controls.TvSidebar">
+    <Grid RowDefinitions="Auto,*" Padding="16,20,8,20" RowSpacing="16" WidthRequest="96">
+        <!-- лого сверху -->
+        <Image Grid.Row="0" Source="logo_g.svg" Aspect="AspectFit"
+               WidthRequest="48" HeightRequest="48" HorizontalOptions="Center" />
+
+        <!-- блок-карточка с кнопками -->
+        <Border Grid.Row="1" BackgroundColor="#0E1320" StrokeThickness="0"
+                StrokeShape="RoundRectangle 20" VerticalOptions="Center" Padding="8,16">
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Button x:Name="NavCategories" Style="{StaticResource TvNavButton}"
+                        Text="&#xe9b0;" Clicked="OnCategories" />
+                <Button x:Name="NavFavorites" Style="{StaticResource TvNavButton}"
+                        Text="&#xe87e;" Clicked="OnFavorites" />
+                <Button x:Name="NavLogout" Style="{StaticResource TvNavButton}"
+                        Text="&#xe9ba;" Clicked="OnLogout" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentView>

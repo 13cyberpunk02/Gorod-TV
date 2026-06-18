@@ -6,13 +6,19 @@
              BackgroundColor="#0B0E13">
     <Grid>
         <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20">
-            <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 22" WidthRequest="96" HeightRequest="96"
-                    HorizontalOptions="Center">
-                <Image Source="appicon.svg" Aspect="AspectFit" Margin="16" />
-            </Border>
-            <Label Text="Инфо-Лан ТВ" FontFamily="OnestBold" FontSize="24"
-                   TextColor="White" HorizontalOptions="Center" />
+            <Image Source="logo_app.svg" Aspect="AspectFit"
+                   WidthRequest="96" HeightRequest="96" HorizontalOptions="Center" />
+            <!-- локап «Город ТВ»: текст + красный бейдж ТВ -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                <Label Text="Город" FontFamily="OnestBold" FontSize="30"
+                       TextColor="White" VerticalOptions="Center" />
+                <Border BackgroundColor="#E5342B" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 8" Padding="9,3" VerticalOptions="Center">
+                    <Label Text="ТВ" FontFamily="OnestBold" FontSize="18" TextColor="White" />
+                </Border>
+            </HorizontalStackLayout>
+            <Label Text="Сервис цифрового ТВ от «Инфо-Лан»" FontFamily="Onest" FontSize="13"
+                   TextColor="#8A94A6" HorizontalOptions="Center" />
             <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}"
                                HorizontalOptions="Center" />
         </VerticalStackLayout>
