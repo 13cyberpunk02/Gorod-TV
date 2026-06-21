@@ -38,7 +38,7 @@ namespace GorodTv.Tv
                 Timeout = TimeSpan.FromSeconds(20)
             });
 
-                        
+            builder.Services.AddTransient<SplashTvPage>();
             builder.Services.AddTransient<LoginTvPage>();
             builder.Services.AddTransient<CategoriesTvPage>();
             builder.Services.AddTransient<ChannelListTvPage>();

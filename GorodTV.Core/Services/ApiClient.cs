@@ -2,6 +2,7 @@
 using GorodTV.Core.Models.DTOs.Response;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace GorodTV.Core.Services;
 
@@ -21,7 +22,13 @@ public interface IApiClient
 public class ApiClient : IApiClient
 {
     private readonly HttpClient _http;
-    private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions JsonOpts = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = JsonTypeInfoResolver.Combine(
+            GorodTvJsonContext.Default,
+            new DefaultJsonTypeInfoResolver()),
+    };
 
     public ApiClient(HttpClient http) => _http = http;
 
@@ -86,9 +93,10 @@ public class ApiClient : IApiClient
 
 
     private async Task<T?> GetAsync<T>(string url, CancellationToken ct)
-    {
+    {     
         using var resp = await _http.GetAsync(url, ct);
+        var raw = await resp.Content.ReadAsStringAsync(ct);     
         resp.EnsureSuccessStatusCode();
-        return await resp.Content.ReadFromJsonAsync<T>(JsonOpts, ct);
+        return JsonSerializer.Deserialize<T>(raw, JsonOpts);
     }
 }
