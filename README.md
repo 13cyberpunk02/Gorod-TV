@@ -249,3 +249,7 @@ manually (its assemblies aren't bundled).
   TV boxes are 32-bit.
 
 ---
+
+## Лицензия
+
+Этот проект распространяется под лицензией [MIT](LICENSE.txt). Подробнее см. в файле [LICENSE](LICENSE.txt).
