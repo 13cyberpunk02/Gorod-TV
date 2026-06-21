@@ -1,7 +1,9 @@
 <Solution>
   <Project Path="GorodTV.Core/GorodTV.Core.csproj" Id="c1983ab1-929b-4e0b-865f-e4799b557a04" />
   <Project Path="GorodTV.Mobile/GorodTV.Mobile.csproj">
-    <Deploy Solution="Debug|*" />
+    <Deploy />
   </Project>
-  <Project Path="GorodTv.Tv/GorodTv.Tv.csproj" Id="fa0aaa39-91cc-4722-a90b-b4948832ac2c" />
+  <Project Path="GorodTv.Tv/GorodTv.Tv.csproj" Id="fa0aaa39-91cc-4722-a90b-b4948832ac2c">
+    <Deploy />
+  </Project>
 </Solution>
