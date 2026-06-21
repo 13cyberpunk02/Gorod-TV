@@ -12,6 +12,7 @@ public partial class ChannelListViewModel : ObservableObject, IQueryAttributable
     private readonly IGorodTvService _channels;
     private readonly IDialogService _dialogs;
     private readonly IAppSettings _settings;
+    private CancellationTokenSource? _epgCts;
 
     public ChannelListViewModel(IGorodTvService channels, IDialogService dialogs, IAppSettings settings)
     {
@@ -76,8 +77,7 @@ public partial class ChannelListViewModel : ObservableObject, IQueryAttributable
             foreach (var c in items)
                 Channels.Add(c);
 
-            // подтянуть текущую передачу для каждого канала (как в избранном)
-            _ = LoadEpgForChannelsAsync(items);
+            StartLazyEpg(items);
         }
         catch (Exception)
         {
@@ -91,29 +91,54 @@ public partial class ChannelListViewModel : ObservableObject, IQueryAttributable
         }
     }
 
-    // текущая передача под названием канала (как в FavoritesViewModel)
-    private async Task LoadEpgForChannelsAsync(IReadOnlyList<ChannelItem> channels)
+    public void CancelEpg() => _epgCts?.Cancel();
+
+    private void StartLazyEpg(IReadOnlyList<ChannelItem> channels)
     {
+        _epgCts?.Cancel();              // отменить прошлую загрузку
+        _epgCts = new CancellationTokenSource();
+        var ct = _epgCts.Token;
+        _ = LoadEpgLazyAsync(channels, ct);
+    }
+
+    private async Task LoadEpgLazyAsync(IReadOnlyList<ChannelItem> channels, CancellationToken ct)
+    {
+        // дать списку отрисоваться
+        await Task.Delay(400, ct).ConfigureAwait(false);
+
         long now;
-        try { now = await _channels.GetServerTimeAsync(); }
+        try { now = await _channels.GetServerTimeAsync(ct); }
         catch { now = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); }
 
-        foreach (var ch in channels)
+        const int batch = 4;            // по 4 канала за раз
+        for (int i = 0; i < channels.Count; i++)
         {
+            if (ct.IsCancellationRequested) return;   // ушли со страницы — стоп
+
+            var ch = channels[i];
             try
             {
-                var epg = await _channels.GetEpgForDayAsync(ch.Id.ToString(), now - 86400);
+                var epg = await _channels.GetEpgForDayAsync(ch.Id.ToString(), now - 86400, ct);
                 EpgItem? current = null;
                 foreach (var e in epg)
                     if (e.StartTimeUnix <= now) current = e; else break;
 
                 if (current is not null)
                 {
-                    ch.CurrentProgram = current.Caption;  // ObservableProperty -> UI обновится
-                    ch.IsLive = true;
+                    // обновляем в UI-потоке (ObservableProperty)
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        ch.CurrentProgram = current.Caption;
+                        ch.IsLive = true;
+                    });
                 }
             }
-            catch { /* EPG не критичен */ }
+            catch (OperationCanceledException) { return; }
+            catch { /* один канал не критичен */ }
+
+            // пауза между батчами — не душим сеть и CPU
+            if ((i + 1) % batch == 0)
+                await Task.Delay(150, ct).ConfigureAwait(false);
         }
     }
 

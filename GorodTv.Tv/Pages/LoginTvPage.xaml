@@ -17,10 +17,8 @@
             <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
 
                 <HorizontalStackLayout Grid.Row="0" Spacing="12">
-                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 10" WidthRequest="40" HeightRequest="40">
-                        <Image Source="appicon.svg" Aspect="AspectFit" Margin="7" />
-                    </Border>
+                    <Image Source="logo_app.svg" Aspect="AspectFit"
+                           WidthRequest="44" HeightRequest="44" />
                     <!-- локап «Город ТВ» -->
                     <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                         <Label Text="Город" FontFamily="OnestBold" FontSize="20"
@@ -37,7 +35,7 @@
                             StrokeShape="RoundRectangle 12" Padding="12,6" HorizontalOptions="Start">
                         <HorizontalStackLayout Spacing="6">
                             <Ellipse Fill="#2ED573" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
-                            <Label Text="180 КАНАЛОВ В ЭФИРЕ" FontFamily="OnestMedium" FontSize="11"
+                            <Label Text="99 КАНАЛОВ В ЭФИРЕ" FontFamily="OnestMedium" FontSize="11"
                                    TextColor="#B9C4D4" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                     </Border>
@@ -51,13 +49,10 @@
 
                 <HorizontalStackLayout Grid.Row="2" Spacing="8">
                     <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
-                        <Label Text="HD и камеры по городу" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
+                        <Label Text="HD каналы и камеры по городу" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
                     </Border>
                     <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
                         <Label Text="Архив 14 дней" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
-                    </Border>
-                    <Border BackgroundColor="#161B24" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
-                        <Label Text="На всех экранах" FontFamily="OnestMedium" FontSize="11" TextColor="#B9C4D4" />
                     </Border>
                 </HorizontalStackLayout>
             </Grid>

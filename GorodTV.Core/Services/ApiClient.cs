@@ -10,6 +10,8 @@ public interface IApiClient
 {
     Task<string?> AuthAsync(LoginRequest request, CancellationToken ct = default);
     Task<bool> IsSessionValidAsync(string sessionId, CancellationToken ct = default);
+    Task<CategoriesAndChannelsResponse?> GetCategoriesAndChannelsAsync(
+            string sessionId, string username, string password, CancellationToken ct = default);
     Task<CategoriesResponse?> GetCategoriesAsync(string sessionId, CancellationToken ct = default);
     Task<ChannelsResponse?> GetChannelsAsync(string sessionId, CancellationToken ct = default);
     Task<EpgResponse?> GetEpgAsync(string channelId, string startTime, string sessionId, CancellationToken ct = default);
@@ -54,31 +56,34 @@ public class ApiClient : IApiClient
         System.Diagnostics.Debug.WriteLine($"[EPG] GET {url}");
         using var resp = await _http.GetAsync(url, ct);
         var body = await resp.Content.ReadAsStringAsync(ct);
-        System.Diagnostics.Debug.WriteLine($"[EPG] status={(int)resp.StatusCode}, body(0..300)={body[..Math.Min(300, body.Length)]}");
         if (!resp.IsSuccessStatusCode) return null;
-        return System.Text.Json.JsonSerializer.Deserialize<EpgResponse>(body, JsonOpts);
+        return JsonSerializer.Deserialize<EpgResponse>(body, JsonOpts);
     }
 
     public async Task<long> GetServerUnixTimeAsync(CancellationToken ct = default)
     {
         var url = BaseApiRequests.GetUnixTimeRequestString;
-        System.Diagnostics.Debug.WriteLine($"[EPG] unixtime GET {url}");
         try
         {
             using var resp = await _http.GetAsync(url, ct);
             var body = await resp.Content.ReadAsStringAsync(ct);
-            System.Diagnostics.Debug.WriteLine($"[EPG] unixtime status={(int)resp.StatusCode}, body={body}");
             if (!resp.IsSuccessStatusCode)
                 return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var res = System.Text.Json.JsonSerializer.Deserialize<UnixTimeResponse>(body, JsonOpts);
+            var res = JsonSerializer.Deserialize<UnixTimeResponse>(body, JsonOpts);
             return res?.Value ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
-        catch (Exception ex)
+        catch
         {
-            System.Diagnostics.Debug.WriteLine($"[EPG] unixtime ИСКЛЮЧЕНИЕ: {ex.Message}");
             return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
     }
+
+    public Task<CategoriesAndChannelsResponse?> GetCategoriesAndChannelsAsync(
+        string sessionId, string username, string password, CancellationToken ct = default)
+    => GetAsync<CategoriesAndChannelsResponse>(
+        BaseApiRequests.GetCategoriesAndChannelsRequestString(
+            username, password, sessionId), ct);
+
 
     private async Task<T?> GetAsync<T>(string url, CancellationToken ct)
     {

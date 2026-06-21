@@ -38,17 +38,23 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
     
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     
 		<AssemblyTitle>Beta</AssemblyTitle>
     
 		<PackageProjectUrl>info-lan.ru</PackageProjectUrl>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
-	  <AndroidPackageFormat>apk</AndroidPackageFormat>
-	  <AndroidKeyStore>False</AndroidKeyStore>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net10.0-android'">
+    <!-- архитектуры: arm64 (реальный ТВ) + arm + x86 (эмулятор) -->
+    <RuntimeIdentifiers>android-arm64;android-arm;android-x64;android-x86</RuntimeIdentifiers>
+
+    <!-- один универсальный APK со всеми ABI, НЕ резать по архитектурам -->
+    <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+
+    <!-- НЕ использовать app bundle (нам нужен .apk, не .aab) -->
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+  </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
@@ -58,8 +64,8 @@
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appicon.svg" Color="#0E4FBF" />
 
-		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<!-- Splash Screen --> 
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B66E5" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -106,6 +112,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\SplashTvPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\TvCardFocus.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\TvCategoryStyles.xaml">

@@ -27,6 +27,7 @@ public partial class CategoriesTvPage : ContentPage
         BuildCards();
     }
 
+    
     private void BuildCards()
     {
         CategoriesHost.Children.Clear();

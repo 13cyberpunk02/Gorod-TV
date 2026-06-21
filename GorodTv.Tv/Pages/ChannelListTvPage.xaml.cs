@@ -1,4 +1,3 @@
-using GorodTv.Tv.Controls;
 using GorodTV.Core.Models;
 using GorodTV.Core.ViewModels;
 
@@ -8,73 +7,110 @@ public partial class ChannelListTvPage : ContentPage
 {
     private readonly ChannelListViewModel _vm;
 
-    private const double CardWidth = 236;
-    private const double PreviewHeight = 116;
-
     public ChannelListTvPage(ChannelListViewModel vm)
     {
         InitializeComponent();
         BindingContext = vm;
         _vm = vm;
 
-        _vm.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(ChannelListViewModel.IsBusy) && !_vm.IsBusy)
-                BuildCards();
-        };
+#if ANDROID
+        ChannelsView.HandlerChanged += OnChannelsHandlerChanged;
+#endif
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        BuildCards();
+        // при каждом открытии категории — поставить фокус на первый канал
+        FocusFirstCard();
     }
 
-    private void BuildCards()
+    protected override void OnDisappearing()
     {
-        LayoutCardsInGrid(_vm.Channels);
-
-        if (_vm.Channels.Count > 0)
-            Dispatcher.Dispatch(async () =>
-            {
-                await Task.Delay(150);
-                var first = ChannelsHost.GetVisualTreeDescendants().OfType<Button>().FirstOrDefault();
-                first?.Focus();
-            });
+        base.OnDisappearing();
+        (_vm as ChannelListViewModel)?.CancelEpg();
     }
 
-    private const int Columns = 3;
-
-    private void LayoutCardsInGrid(IEnumerable<ChannelItem> channels)
+    // ставит фокус на первую карточку списка (после отрисовки)
+    private void FocusFirstCard()
     {
-        ChannelsHost.Children.Clear();
-        ChannelsHost.ColumnDefinitions.Clear();
-        ChannelsHost.RowDefinitions.Clear();
-
-        for (int c = 0; c < Columns; c++)
-            ChannelsHost.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        int i = 0;
-        foreach (var ch in channels)
+#if ANDROID
+        Dispatcher.Dispatch(async () =>
         {
-            int row = i / Columns, col = i % Columns;
-            if (col == 0)
-                ChannelsHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            // ждём, пока CollectionView материализует первую карточку
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                await Task.Delay(120);
+                if (ChannelsView.Handler?.PlatformView is not
+                    AndroidX.RecyclerView.Widget.RecyclerView rv) continue;
+                if (rv.ChildCount == 0) continue;
 
-            var card = BuildCard(ch);
-            ChannelsHost.Add(card, col, row);
-            i++;
+                // первый видимый элемент (верхний-левый)
+                var firstChild = rv.GetChildAt(0);
+                if (firstChild is null) continue;
+
+                // найти фокусируемую кнопку внутри первой карточки и сфокусировать
+                var focusable = FindFocusable(firstChild);
+                if (focusable is not null)
+                {
+                    focusable.RequestFocus();
+                    return;
+                }
+            }
+        });
+#endif
+    }
+
+#if ANDROID
+    // рекурсивно ищем первый фокусируемый View внутри карточки
+    private static Android.Views.View? FindFocusable(Android.Views.View v)
+    {
+        if (v.Focusable && v.Visibility == Android.Views.ViewStates.Visible)
+            return v;
+        if (v is Android.Views.ViewGroup g)
+        {
+            for (int i = 0; i < g.ChildCount; i++)
+            {
+                var found = FindFocusable(g.GetChildAt(i)!);
+                if (found is not null) return found;
+            }
+        }
+        return null;
+    }
+
+    private void OnChannelsHandlerChanged(object? sender, EventArgs e)
+    {
+        if (ChannelsView.Handler?.PlatformView is AndroidX.RecyclerView.Widget.RecyclerView rv)
+        {
+            rv.SetItemViewCacheSize(20);
+            rv.PreserveFocusAfterLayout = true;
+
+            // подкрутка вниз, когда фокус у нижней кромки (чтобы не уходил на сайдбар)
+            var vto = rv.ViewTreeObserver;
+            if (vto is null)
+            {
+                return;
+            }
+            vto.GlobalFocusChange += (s, a) =>
+            {
+                var focused = a.NewFocus;
+                if (focused is null) return;
+                var loc = new int[2];
+                focused.GetLocationOnScreen(loc);
+                var rvLoc = new int[2];
+                rv.GetLocationOnScreen(rvLoc);
+                int focusBottom = loc[1] + focused.Height;
+                int rvBottom = rvLoc[1] + rv.Height;
+                if (focusBottom > rvBottom - focused.Height)
+                    rv.SmoothScrollBy(0, focused.Height + 16);
+            };
         }
     }
-
-    private View BuildCard(ChannelItem ch)
-        => TvChannelCard.Build(ch, CardWidth, PreviewHeight, OnChannelClicked);
+#endif
 
     private async void OnChannelClicked(object? sender, EventArgs e)
     {
         if (sender is Button { CommandParameter: ChannelItem ch })
             await Shell.Current.GoToAsync($"player?id={ch.Id}&name={Uri.EscapeDataString(ch.Name)}");
     }
-
-
 }

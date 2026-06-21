@@ -29,10 +29,15 @@ public static class BaseApiRequests
 
     public static string GetEpgRequestString(string startTime, string channelId, string sessionId) =>
         $"/api?operation=epg&sessionId={sessionId}&channel={channelId}&startTime={startTime}&allday=true&sign={EpgHmac(channelId, startTime, sessionId)}";
+    
+    public static string GetCategoriesAndChannelsRequestString(
+            string username, string password, string sessionId) =>
+        $"/api?operation=categoriesAndChannels&interval=day&sessionId={sessionId}" +
+        $"&sign={Sign(username, password)}";
 
     public static string GetUnixTimeRequestString => "/api?operation=unixtime";
 
-    private static string Sign(string username, string password) => HashedSign($"auth{username}{password}");
+    private static string Sign(string contractNumber, string password) => HashedSign($"auth{contractNumber}{password}");
     private static string CategoriesHmac(string sessionId) => HashedSign("categories" + sessionId);
     private static string ChannelsHmac(string sessionId) => HashedSign("channels" + sessionId);
     private static string EpgHmac(string channelId, string startTime, string sessionId) =>

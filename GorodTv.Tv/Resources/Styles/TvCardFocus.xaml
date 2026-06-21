@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Прозрачная фокус-кнопка поверх карточки. При фокусе — заметная синяя
+         рамка + лёгкая подсветка фона (на ТВ border на голой кнопке часто не
+         виден, поэтому добавляем полупрозрачную заливку для надёжности). -->
+    <Style x:Key="TvCardFocus" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="BorderColor" Value="Transparent" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <!-- синяя рамка вокруг карточки -->
+                            <Setter Property="BorderColor" Value="#3D8BFF" />
+                            <Setter Property="BorderWidth" Value="4" />
+                            <!-- лёгкая синяя подсветка (заметно даже если рамка тонкая) -->
+                            <Setter Property="BackgroundColor" Value="#333D8BFF" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

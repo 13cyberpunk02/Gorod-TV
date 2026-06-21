@@ -3,136 +3,116 @@ using GorodTV.Core.Models;
 
 namespace GorodTv.Tv.Controls;
 
-// общий построитель карточки канала (используют список каналов и избранное)
+// Лёгкий построитель карточки канала (список + избранное).
+// Оптимизировано для слабых ТВ-боксов: минимум вложенных элементов.
 public static class TvChannelCard
 {
     public static View Build(ChannelItem ch, double cardWidth, double previewHeight,
                              EventHandler clickHandler)
     {
-        var card = new Border
-        {
-            BackgroundColor = Color.FromArgb("#11161F"),
-            StrokeThickness = 0,
-            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 16 },
-            WidthRequest = cardWidth,
-            HeightRequest = previewHeight + 70,   // превью + блок названия/передачи
-            Margin = new Thickness(8),
-            Padding = 0
-        };
-
+        // корневой Grid карточки: превью (фикс. высота) + подпись
         var root = new Grid
         {
+            WidthRequest = cardWidth,
+            HeightRequest = previewHeight + 64,
+            Margin = new Thickness(8),
+            BackgroundColor = Color.FromArgb("#11161F"),
             RowDefinitions =
             {
                 new RowDefinition { Height = previewHeight },
                 new RowDefinition { Height = GridLength.Auto },
-            },
-            RowSpacing = 0
+            }
         };
 
-        // превью: логотип канала крупно (если есть), иначе цветной фон с аббревиатурой
-        View previewContent;
+        // --- превью ---
         if (ch.HasIcon)
         {
-            previewContent = new Image
+            root.Add(new Image
             {
                 Source = ch.IconUrl,
                 Aspect = Aspect.AspectFit,
-                Margin = new Thickness(24),
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
+                Margin = new Thickness(18),
+                BackgroundColor = Color.FromArgb("#1E2530")
+            }, 0, 0);
         }
         else
         {
-            previewContent = new Label
+            root.Add(new Label
             {
                 Text = ch.Abbrev,
                 FontFamily = "OnestBold",
-                FontSize = 32,
+                FontSize = 26,
                 TextColor = Colors.White,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
+                BackgroundColor = ch.TileColor,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center
+            }, 0, 0);
         }
 
-        var preview = new Grid
-        {
-            BackgroundColor = ch.HasIcon ? Color.FromArgb("#1E2530") : ch.TileColor,
-            Padding = new Thickness(8)
-        };
-        preview.Children.Add(previewContent);
-
-        // бейдж ЭФИР поверх превью (если идёт эфир)
+        // бейдж ЭФИР (лёгкий Label, без отдельного Border-контейнера)
         if (ch.IsLive)
         {
-            preview.Children.Add(new Border
+            root.Add(new Label
             {
+                Text = "● ЭФИР",
+                FontFamily = "OnestBold",
+                FontSize = 10,
+                TextColor = Colors.White,
                 BackgroundColor = Color.FromArgb("#E5342B"),
-                StrokeThickness = 0,
-                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 },
-                Padding = new Thickness(8, 3),
+                Padding = new Thickness(7, 3),
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Start,
-                Content = new Label
-                {
-                    Text = "● ЭФИР",
-                    FontFamily = "OnestBold",
-                    FontSize = 10,
-                    TextColor = Colors.White
-                }
-            });
+                Margin = new Thickness(10)
+            }, 0, 0);
         }
-        Grid.SetRow(preview, 0);
-        root.Children.Add(preview);
 
-        var info = new VerticalStackLayout { Padding = new Thickness(14, 10, 14, 12), Spacing = 2 };
-        info.Children.Add(new Label
+        // --- подпись: название + передача ---
+        var info = new VerticalStackLayout { Padding = new Thickness(12, 8, 12, 10), Spacing = 1 };
+        info.Add(new Label
         {
             Text = ch.Id > 0 ? $"{ch.Name} · {ch.Id}" : ch.Name,
             FontFamily = "OnestBold",
-            FontSize = 15,
+            FontSize = 14,
             TextColor = Colors.White,
             LineBreakMode = LineBreakMode.TailTruncation
         });
 
-        // строка текущей передачи (EPG подгружается асинхронно -> обновим по событию)
         var programLabel = new Label
         {
             Text = string.IsNullOrWhiteSpace(ch.CurrentProgram) ? " " : ch.CurrentProgram,
             FontFamily = "Onest",
-            FontSize = 12,
+            FontSize = 11,
             TextColor = Color.FromArgb("#8A94A6"),
             LineBreakMode = LineBreakMode.TailTruncation
         };
-        info.Children.Add(programLabel);
+        info.Add(programLabel);
+        root.Add(info, 0, 1);
 
+        // обновление строки передачи когда EPG догрузится (лениво/батчами)
         ch.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ChannelItem.CurrentProgram))
             {
-                var text = ch.CurrentProgram;
+                var t = ch.CurrentProgram;
                 programLabel.Dispatcher.Dispatch(() =>
-                    programLabel.Text = string.IsNullOrWhiteSpace(text) ? " " : text);
+                    programLabel.Text = string.IsNullOrWhiteSpace(t) ? " " : t);
             }
         };
-        Grid.SetRow(info, 1);
-        root.Children.Add(info);
 
+        // фокус-кнопка поверх (прозрачная) — подсветка рамкой
         var focus = new Button
         {
             BackgroundColor = Colors.Transparent,
-            Style = (Style)Application.Current!.Resources["TvCardFocus"],
+            BorderColor = Colors.Transparent,
+            BorderWidth = 0,
             CommandParameter = ch
         };
         focus.Clicked += clickHandler;
-        focus.Focused += (_, _) => { card.Stroke = Color.FromArgb("#1B66E5"); card.StrokeThickness = 3; };
-        focus.Unfocused += (_, _) => { card.StrokeThickness = 0; };
+        focus.Focused += (_, _) => { root.BackgroundColor = Color.FromArgb("#1B2740"); };
+        focus.Unfocused += (_, _) => { root.BackgroundColor = Color.FromArgb("#11161F"); };
+        root.Add(focus, 0, 0);
+        Grid.SetRowSpan(focus, 2);
 
-        var overlay = new Grid();
-        overlay.Children.Add(root);
-        overlay.Children.Add(focus);
-        card.Content = overlay;
-        return card;
+        return root;
     }
 }

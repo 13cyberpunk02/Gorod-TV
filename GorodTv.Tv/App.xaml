@@ -14,6 +14,7 @@
                 <ResourceDictionary Source="Resources/Styles/TvCategoryStyles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/TvPlayerStyle.xaml" />
                 <ResourceDictionary Source="Resources/Styles/TvEpgStyles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/TvCardFocus.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

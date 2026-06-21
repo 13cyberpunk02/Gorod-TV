@@ -131,7 +131,7 @@ public partial class PlayerTvPage : ContentPage
         SeekThumb.Scale = 1.5;          // маркер крупнее = бар активен
         SeekThumb.BackgroundColor = Colors.White;
 #if ANDROID
-        MainActivity.SwallowHorizontalKeys = true;   // ←→ не уводят фокус
+       MainActivity.SwallowHorizontalKeys = true;   // ←→ не уводят фокус
 #endif
         RestartHideTimer();
     }
@@ -142,7 +142,7 @@ public partial class PlayerTvPage : ContentPage
         _seeking = false;
         SeekThumb.Scale = 1.0;
 #if ANDROID
-        MainActivity.SwallowHorizontalKeys = false;
+       MainActivity.SwallowHorizontalKeys = false;
 #endif
     }
 
@@ -204,23 +204,122 @@ public partial class PlayerTvPage : ContentPage
     private void BuildPrograms()
     {
         ProgramsHost.Children.Clear();
-        foreach (var prog in _vm.DayEpg)
+
+        // только уже начавшиеся передачи (будущие не показываем),
+        // и сортируем СВЕЖИЕ СВЕРХУ (по убыванию времени старта)
+        var past = _vm.DayEpg
+            .Where(p => p.CanPlay)
+            .OrderByDescending(p => p.StartTimeUnix)
+            .ToList();
+
+        foreach (var prog in past)
         {
             var captured = prog;
-            var btn = new Button
+            bool isCurrent = prog.IsCurrent;
+
+            // строка передачи: своя разметка, чтобы подсветить текущую
+            var row = new Border
             {
-                Text = $"{prog.StartTimeText}   {prog.Caption}",
-                Style = (Style)Application.Current!.Resources["TvEpgRow"],
-                CommandParameter = prog,
-                IsEnabled = prog.CanPlay   // будущие передачи не выбрать
+                BackgroundColor = isCurrent ? Color.FromArgb("#1B66E5") : Colors.Transparent,
+                StrokeThickness = 0,
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
+                Padding = new Thickness(14, 10),
+                Margin = new Thickness(0, 1)
             };
-            btn.Clicked += (_, _) =>
+
+            var rowGrid = new Grid
             {
-                if (!captured.CanPlay) return;
+                ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Auto },
+            },
+                ColumnSpacing = 12
+            };
+
+            rowGrid.Add(new Label
+            {
+                Text = prog.StartTimeText,
+                FontFamily = "OnestMedium",
+                FontSize = 13,
+                TextColor = isCurrent ? Colors.White : Color.FromArgb("#8A94A6"),
+                VerticalOptions = LayoutOptions.Center
+            }, 0, 0);
+
+            rowGrid.Add(new Label
+            {
+                Text = prog.Caption,
+                FontFamily = isCurrent ? "OnestBold" : "OnestMedium",
+                FontSize = 15,
+                TextColor = Colors.White,
+                LineBreakMode = LineBreakMode.TailTruncation,
+                VerticalOptions = LayoutOptions.Center
+            }, 1, 0);
+
+            // метка «идёт» у текущей
+            if (isCurrent)
+                rowGrid.Add(new Label
+                {
+                    Text = "● идёт",
+                    FontFamily = "OnestBold",
+                    FontSize = 11,
+                    TextColor = Colors.White,
+                    VerticalOptions = LayoutOptions.Center
+                }, 2, 0);
+
+            row.Content = rowGrid;
+
+            // фокус-кнопка поверх строки — ПРОЗРАЧНАЯ, не перекрывает текст.
+            // Подсветка фокуса рисуется на нижнем Border (row), а не на кнопке.
+            var focus = new Button
+            {
+                BackgroundColor = Colors.Transparent,
+                BorderColor = Colors.Transparent,
+                BorderWidth = 0,
+                CornerRadius = 10,
+                CommandParameter = prog
+            };
+            Color baseBg = isCurrent ? Color.FromArgb("#1B66E5") : Colors.Transparent;
+            focus.Focused += (_, _) =>
+            {
+                // при фокусе: подсветка строки рамкой + лёгкий фон, текст виден
+                row.Stroke = Color.FromArgb("#3D8BFF");
+                row.StrokeThickness = 3;
+                if (!isCurrent) row.BackgroundColor = Color.FromArgb("#1A2230");
+            };
+            focus.Unfocused += (_, _) =>
+            {
+                row.StrokeThickness = 0;
+                row.BackgroundColor = baseBg;
+            };
+            focus.Clicked += (_, _) =>
+            {
                 _vm.PlayArchiveCommand.Execute(captured);
                 EpgPanel.IsVisible = false;
             };
-            ProgramsHost.Children.Add(btn);
+
+#if ANDROID
+            // убрать нативный фон/подсветку MaterialButton (чтобы был прозрачным)
+            focus.HandlerChanged += (_, _) =>
+            {
+                if (focus.Handler?.PlatformView is Android.Views.View v)
+                {
+                    v.Background = null;
+                    v.Foreground = null;
+                    var t = v.GetType();
+                    var transparent = Android.Content.Res.ColorStateList.ValueOf(
+                        Android.Graphics.Color.Transparent);
+                    try { t.GetProperty("BackgroundTintList")?.SetValue(v, transparent); } catch { }
+                    try { t.GetProperty("RippleColor")?.SetValue(v, transparent); } catch { }
+                }
+            };
+#endif
+
+            var overlay = new Grid();
+            overlay.Children.Add(row);
+            overlay.Children.Add(focus);
+            ProgramsHost.Children.Add(overlay);
         }
     }
 

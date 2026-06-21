@@ -33,6 +33,7 @@ public class GorodTvService : IGorodTvService
     private readonly IApiClient _api;
     private readonly ISessionStore _session;
     private readonly IFavoritesStore _favorites;
+    private IReadOnlyList<CategoryWithChannelsDto>? _catChanCache;
 
     // кэш «сырых» каналов — категории и фильтры считаются из него
     private IReadOnlyList<ChannelDto>? _channelsCache;
@@ -76,23 +77,29 @@ public class GorodTvService : IGorodTvService
     public void Logout()
     {
         _session.Clear();
-        _channelsCache = null;
-        _categoriesCache = null;
+        _catChanCache = null;
     }
 
     public async Task<IReadOnlyList<CategoryItem>> GetCategoriesAsync(CancellationToken ct = default)
     {
-        var cats = await EnsureCategoriesAsync(ct);
-        var chans = await EnsureChannelsAsync(ct);
-        return ChannelMapper.BuildCategories(cats, chans);
+        var data = await EnsureCatChanAsync(ct);
+        var result = new List<CategoryItem>(data.Count);
+        for (int i = 0; i < data.Count; i++)
+            result.Add(ChannelMapper.BuildCategoryFromCatChan(data[i], i));
+        return result;
     }
 
-    public async Task<IReadOnlyList<ChannelItem>> GetChannelsAsync(string? categoryId = null, CancellationToken ct = default)
+
+    public async Task<IReadOnlyList<ChannelItem>> GetChannelsAsync(
+        string? categoryId = null, CancellationToken ct = default)
     {
-        var chans = await EnsureChannelsAsync(ct);
-        var list = ChannelMapper.BuildChannels(chans, categoryId);
-        foreach (var c in list) c.IsFavorite = _favorites.Contains(c.Id);
-        return list;
+        var data = await EnsureCatChanAsync(ct);
+        IEnumerable<ChannelInCategoryDto> channels =
+            string.IsNullOrEmpty(categoryId) || categoryId == "all"
+                ? data.SelectMany(c => c.ChannelsList ?? Enumerable.Empty<ChannelInCategoryDto>())
+                : (data.FirstOrDefault(c => c.Id == categoryId)?.ChannelsList
+                   ?? Enumerable.Empty<ChannelInCategoryDto>());
+        return [.. channels.Select(ChannelMapper.BuildChannelFromCatChan)];
     }
 
     public Task<IReadOnlyList<EpgItem>> GetEpgAsync(string channelEpgId, CancellationToken ct = default)
@@ -203,4 +210,12 @@ public class GorodTvService : IGorodTvService
 
     private string RequireSession()
         => _session.SessionId ?? throw new InvalidOperationException("Нет активной сессии. Требуется вход.");
+
+    private async Task<IReadOnlyList<CategoryWithChannelsDto>> EnsureCatChanAsync(CancellationToken ct)
+    {
+        if (_catChanCache is not null) return _catChanCache;
+        var resp = await WithRetry(s => _api.GetCategoriesAndChannelsAsync(s, _session.Login!, _session.Password!, ct), ct);
+        return _catChanCache = resp?.CategoriesAndChannels
+                               ?? Array.Empty<CategoryWithChannelsDto>();
+    }
 }

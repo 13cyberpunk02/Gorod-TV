@@ -18,7 +18,7 @@
         <!-- КОНТЕНТ -->
         <Grid Grid.Column="1" RowDefinitions="Auto,*" Padding="40,28,40,28" RowSpacing="20">
             <VerticalStackLayout Grid.Row="0" Spacing="4">
-                <Label Text="ДОБРЫЙ ВЕЧЕР" FontFamily="OnestBold" FontSize="13" TextColor="#5B6B82" />
+                <Label Text="ПРИВЕТ" FontFamily="OnestBold" FontSize="13" TextColor="#5B6B82" />
                 <Label Text="Выберите категорию" FontFamily="OnestBold" FontSize="30" TextColor="White" />
             </VerticalStackLayout>
 

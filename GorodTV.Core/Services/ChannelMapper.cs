@@ -66,6 +66,48 @@ public static class ChannelMapper
         return src.Select(ToChannel).ToList();
     }
 
+    public static CategoryItem BuildCategory(string id, string name, string icon, int count)
+      => new()
+      {
+          Id = id,
+          Title = name,
+          IconUrl = string.IsNullOrWhiteSpace(icon) ? null : icon,
+          Count = count          
+          // Tint/IconColor/FallbackGlyph/HasIcon — как в твоём существующем маппере
+      };
+
+    // Категория из categoriesAndChannels — С ГЛИФОМ (как старый ToCategory)
+    public static CategoryItem BuildCategoryFromCatChan(
+        CategoryWithChannelsDto dto, int index)
+    {
+        var (tint, icon) = CategoryPalette[index % CategoryPalette.Length];
+        return new CategoryItem
+        {
+            Id = dto.Id,
+            Title = dto.Name,
+            IconUrl = string.IsNullOrWhiteSpace(dto.Icon) ? null : dto.Icon,
+            Tint = tint,
+            IconColor = icon,
+            Count = dto.ChannelsList?.Count ?? 0,
+            FallbackGlyph = GlyphForCategory(dto.Name)
+        };
+    }
+
+    // --- Канал из categoriesAndChannels (без программы — догрузится лениво) ---
+    public static ChannelItem BuildChannelFromCatChan(ChannelInCategoryDto d) => new()
+    {
+        Id = int.TryParse(d.Id, out var i) ? i : 0,
+        Name = d.Name,
+        CategoryId = d.Category,
+        EpgId = string.IsNullOrWhiteSpace(d.EpgId) ? "" : d.EpgId,
+        IconUrl = !string.IsNullOrWhiteSpace(d.Icon) ? d.Icon
+                  : (!string.IsNullOrWhiteSpace(d.IconSvg) ? d.IconSvg : null),
+        Link = d.Link ?? "",
+        Abbrev = MakeAbbrev(d.Name),
+        TileColor = PickColor(d.Name)
+        // CurrentProgram НЕ ставим — придёт из ленивой EPG-загрузки
+    };
+
     private static string MakeAbbrev(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return "ТВ";

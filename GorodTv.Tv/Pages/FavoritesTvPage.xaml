@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:GorodTV.Core.ViewModels;assembly=GorodTV.Core"
+             xmlns:models="clr-namespace:GorodTV.Core.Models;assembly=GorodTV.Core"
              xmlns:ctrl="clr-namespace:GorodTv.Tv.Controls"
              x:Class="GorodTv.Tv.Pages.FavoritesTvPage"
              x:DataType="vm:FavoritesViewModel"
@@ -10,10 +11,8 @@
              BackgroundColor="#0B0E13">
 
     <Grid ColumnDefinitions="96,*">
-
         <ctrl:TvSidebar Grid.Column="0" />
 
-        <!-- КОНТЕНТ -->
         <Grid Grid.Column="1" RowDefinitions="Auto,*" Padding="40,28,40,28" RowSpacing="18">
             <VerticalStackLayout Grid.Row="0" Spacing="4">
                 <Label Text="ИЗБРАННОЕ" FontFamily="OnestBold" FontSize="13" TextColor="#5B6B82" />
@@ -21,22 +20,59 @@
             </VerticalStackLayout>
 
             <!-- пустое состояние -->
-            <VerticalStackLayout Grid.Row="1" x:Name="EmptyState" IsVisible="False"
+            <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsEmpty}"
                                  Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
                 <Label Text="&#xe87e;" FontFamily="MaterialSymbols" FontSize="56"
                        TextColor="#2A3342" HorizontalOptions="Center" />
                 <Label Text="Здесь пока пусто" FontFamily="OnestBold" FontSize="20"
                        TextColor="#8A94A6" HorizontalOptions="Center" />
-                <Label Text="Добавляйте каналы в избранное из списка каналов"
-                       FontFamily="Onest" FontSize="14" TextColor="#5B6B82"
-                       HorizontalOptions="Center" />
+                <Label Text="Добавляйте каналы в избранное из плеера"
+                       FontFamily="Onest" FontSize="14" TextColor="#5B6B82" HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-            <!-- карточки избранного -->
-            <ScrollView Grid.Row="1">
-                <Grid x:Name="ChannelsHost" ColumnSpacing="0" RowSpacing="0"
-                      HorizontalOptions="Start" />
-            </ScrollView>
+            <CollectionView Grid.Row="1" x:Name="ChannelsView" ItemsSource="{Binding Channels}"
+                            SelectionMode="None" VerticalScrollBarVisibility="Never">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3"
+                                     HorizontalItemSpacing="16" VerticalItemSpacing="16" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ChannelItem">
+                        <Border BackgroundColor="#11161F" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 16" Padding="0" HeightRequest="186">
+                            <Grid RowDefinitions="116,*">
+                                <Grid Grid.Row="0" BackgroundColor="#1E2530">
+                                    <Image Source="{Binding IconUrl}" Aspect="AspectFit" Margin="18"
+                                           IsVisible="{Binding HasIcon}" />
+                                    <Label Text="{Binding Abbrev}" FontFamily="OnestBold" FontSize="26"
+                                           TextColor="White" IsVisible="{Binding NoIcon}"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                    <Label Text="● ЭФИР" FontFamily="OnestBold" FontSize="10" TextColor="White"
+                                           BackgroundColor="#E5342B" Padding="7,3" Margin="10"
+                                           IsVisible="{Binding IsLive}"
+                                           HorizontalOptions="Start" VerticalOptions="Start" />
+                                </Grid>
+                                <VerticalStackLayout Grid.Row="1" Padding="12,8,12,10" Spacing="1">
+                                    <Label FontFamily="OnestBold" FontSize="14" TextColor="White"
+                                           LineBreakMode="TailTruncation">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} · {1}">
+                                                <Binding Path="Name" />
+                                                <Binding Path="Id" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                    <Label Text="{Binding CurrentProgram}" FontFamily="Onest" FontSize="11"
+                                           TextColor="#8A94A6" LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <Button Grid.RowSpan="2" BackgroundColor="Transparent"
+                                        Style="{StaticResource TvCardFocus}"
+                                        Clicked="OnChannelClicked" CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </Grid>
     </Grid>
 

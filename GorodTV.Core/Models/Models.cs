@@ -50,6 +50,8 @@ public partial class ChannelItem : ObservableObject
     public required string Abbrev { get; init; }
     public required Color TileColor { get; init; }
 
+    public bool NoIcon => !HasIcon;
+
     public bool HasIcon => !string.IsNullOrWhiteSpace(IconUrl);
 
     [ObservableProperty]
